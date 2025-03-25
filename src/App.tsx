@@ -1,12 +1,9 @@
-import './App.css'
+import RoutesApp from './presentation/routes/routes';
 
 function App() {
-
   return (
-    <>
-     <p>Hola</p>
-    </>
-  )
+    <RoutesApp/>
+  );
 }
 
-export default App
+export default App;
