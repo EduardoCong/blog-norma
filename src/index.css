@@ -121,3 +121,13 @@
   color: var(--color-text-primary);
   font-size: 12px;
 }
+ /* .font-torres{
+  font-family: var(--font-family-primary)
+ }
+
+ .button-suscribes :hover{
+  background-color: var(--color-primary);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+ } */

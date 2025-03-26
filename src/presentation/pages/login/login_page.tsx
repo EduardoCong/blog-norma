@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import Swal from "sweetalert2";
 import { userSchema } from "../../zodValidartion/zod_validation";
 
 const emailSchema = userSchema.pick({ email: true });
@@ -14,6 +15,9 @@ interface FormErrors {
 function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState<FormErrors>({});
+  const [shouldLogin, setShouldLogin] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -22,26 +26,17 @@ function LoginPage() {
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name === "email") {
-      const result = emailSchema.safeParse({ email: value });
-      if (!result.success) {
-        const message =
-          result.error.formErrors.fieldErrors.email?.[0] || "Error en email";
-        setError((prev) => ({ ...prev, email: message }));
-      } else {
-        setError((prev) => ({ ...prev, email: undefined }));
-      }
-    }
-    if (name === "password") {
-      const result = passwordSchema.safeParse({ password: value });
-      if (!result.success) {
-        const message =
-          result.error.formErrors.fieldErrors.password?.[0] ||
-          "Error en password";
-        setError((prev) => ({ ...prev, password: message }));
-      } else {
-        setError((prev) => ({ ...prev, password: undefined }));
-      }
+    const schemaToUse = name === "email" ? emailSchema : passwordSchema;
+    const result = schemaToUse.safeParse({ [name]: value });
+
+    if (!result.success) {
+      const message =
+        result.error.formErrors.fieldErrors[
+          name as keyof typeof result.error.formErrors.fieldErrors
+        ]?.[0] || `Error en ${name}`;
+      setError((prev) => ({ ...prev, [name]: message }));
+    } else {
+      setError((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
@@ -49,12 +44,63 @@ function LoginPage() {
     e.preventDefault();
     try {
       userSchema.parse(formData);
-      console.log("Datos válidos:", formData);
       setError({});
+      setShouldLogin(true);
     } catch (err) {
       console.error("Error en submit:", err);
     }
   };
+
+  useEffect(() => {
+    if (!shouldLogin) return;
+
+    const loginUser = async () => {
+      try {
+        const response = await fetch("http://localhost:4000/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            correo: formData.email,
+            contraseña: formData.password,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Error al iniciar sesión");
+        }
+
+        localStorage.setItem("correo", data.usuario.email);
+        localStorage.setItem("nombre_usuario", data.usuario.nombre_usuario);
+        localStorage.setItem("rol", data.usuario.id_autor);
+        localStorage.setItem("token", data.usuario.token);
+        localStorage.setItem("token_expires", data.usuario.token_expires);
+
+        Swal.fire({
+          icon: "success",
+          title: "¡Inicio de sesión exitoso!",
+          text: data.message || "Bienvenido de nuevo.",
+          confirmButtonText: "Ir al Home",
+        }).then(() => {
+          navigate("/home");
+        });
+      } catch (error) {
+        console.error("Error al iniciar sesión:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: (error as Error).message || "Algo salió mal",
+        });
+      } finally {
+        setShouldLogin(false);
+      }
+    };
+
+    loginUser();
+  }, [formData.email, formData.password, navigate, shouldLogin]);
 
   return (
     <motion.div
@@ -64,6 +110,7 @@ function LoginPage() {
       exit={{ opacity: 0, y: -50 }}
       transition={{ duration: 0.5 }}
     >
+      {/* NAVBAR */}
       <nav className="flex items-center justify-between p-4">
         <div className="flex items-center space-x-2 hover:cursor-pointer">
           <img
@@ -75,18 +122,21 @@ function LoginPage() {
         </div>
         <ul className="flex space-x-2">
           <li>
-            <NavLink to="/" className="button-register px-4 py-2 rounded-[12px]">
+            <NavLink
+              to="/login"
+              className={({ isActive }) =>
+                isActive
+                  ? "button-register-active px-4 py-2 rounded-[12px]"
+                  : "button-register px-4 py-2 rounded-[12px]"
+              }
+            >
               Login
             </NavLink>
           </li>
           <li>
             <NavLink
               to="/register"
-              className={({ isActive }) =>
-                isActive
-                  ? "button-register-active px-4 py-2 rounded-[12px]"
-                  : "button-register px-4 py-2 rounded-[12px]"
-              }
+              className="button-register px-4 py-2 rounded-[12px]"
             >
               Registro
             </NavLink>
@@ -94,6 +144,7 @@ function LoginPage() {
         </ul>
       </nav>
       <div className="div-line"></div>
+
       <div className="div-container-form flex items-center justify-center min-h-screen mt-[-40px]">
         <div className="div-form p-8 w-full max-w-md">
           <h1 className="text-[20px] text-center mb-4">
@@ -137,10 +188,7 @@ function LoginPage() {
               )}
             </div>
             <div className="flex justify-center">
-              <button
-                type="submit"
-                className="button-submit-register w-40 py-2 rounded-[12px]"
-              >
+              <button className="button-submit-register w-40 py-2 rounded-[12px]">
                 Inicia Sesión
               </button>
             </div>
