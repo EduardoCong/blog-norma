@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { FaUpload, FaUser } from 'react-icons/fa';
+import '/src/App.css';
 
 function Navbar() {
   return (
@@ -17,10 +18,10 @@ function Navbar() {
       </div>
 
       <div style={{ display: 'flex', gap: '40px' }}>
-        <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>Inicio</Link>
-        <Link to="/noticias" style={{ color: 'white', textDecoration: 'none' }}>Noticias</Link>
-        <Link to="/descubrimientos" style={{ color: 'white', textDecoration: 'none' }}>Descubrimientos</Link>
-        <Link to="/expertos" style={{ color: 'white', textDecoration: 'none' }}>Expertos</Link>
+        <Link to="/" className="nav-link">Inicio</Link>
+        <Link to="/noticias" className="nav-link">Noticias</Link>
+        <Link to="/descubrimientos" className="nav-link">Descubrimientos</Link>
+        <Link to="/expertos" className="nav-link">Expertos</Link>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -58,7 +59,7 @@ function Navbar() {
             width: '30px',
             height: '30px',
             borderRadius: '50%',
-            backgroundColor: 'white', // Círculo gris claro
+            backgroundColor: 'white',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center'

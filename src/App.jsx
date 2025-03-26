@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { Profiler, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/principals/Navbar";
 import Footer from "./components/principals/Footer";
@@ -7,6 +7,7 @@ import Noticias from "./components/noticias/Noticias.jsx";
 import Descubrimientos from "./components/descubrimientos/Descubrimientos.jsx";
 import Expertos from "./components/expertos/Expertos.jsx";
 import PrincipalViews from "./components/uploadnews/principalviews.jsx";
+import Profile from "./components/profile/Profile.jsx";
 function App() {
   useEffect(() => {
     document.documentElement.style.overflowY = "scroll"; // Scroll siempre visible
@@ -23,6 +24,7 @@ function App() {
             <Route path="/descubrimientos" element={<Descubrimientos />} />
             <Route path="/expertos" element={<Expertos />} />
             <Route path="/uploadnews" element={<PrincipalViews />} />
+            <Route path="/profile" element={<Profile/>} />
 
           </Routes>
         </div>

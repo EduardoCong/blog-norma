@@ -76,7 +76,7 @@ function NewsList() {
       {/* Contenedor de las cards */}
       <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap" }}>
         {news.map((item) => (
-          <div key={item.id} onClick={() => openModal(item)} style={{ cursor: "pointer" }}>
+          <div className="news-card" key={item.id} onClick={() => openModal(item)} style={{ cursor: "pointer" }}>
             <NewCard title={item.title} summary={item.summary} imageUrl={item.imageUrl} />
           </div>
         ))}
@@ -179,7 +179,21 @@ function NewsList() {
           </div>
         )}
       </Modal>
+      <style type="text/css">
+        {`
+          .news-card {
+            
+            transition: transform 0.3s ease-in-out;
+          }
+  
+          .news-card:hover {
+            transform: translateY(-5px);
+          }
+        `}
+
+      </style>
     </div>
+
   );
 }
 
