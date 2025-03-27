@@ -150,7 +150,7 @@ function RegisterPage() {
         <ul className="flex space-x-2">
           <li>
             <NavLink
-              to="/login"
+              to="/"
               className="button-register px-4 py-2 rounded-[12px]"
             >
               Login

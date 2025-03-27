@@ -35,10 +35,11 @@ const ScienceUTMHomepage = () => {
         localStorage.setItem("id_articulo", data.id_articulo);
 
         if (Array.isArray(data)) {
-          setNews(data);
-        } else {
-          console.error("La respuesta no es un array:", data);
-        }
+          const ordenado = data.sort(
+            (a, b) => new Date(b.fecha_publicacion).getTime() - new Date(a.fecha_publicacion).getTime()
+          );
+          setNews(ordenado);
+        }        
       } catch (err) {
         console.error("Error al cargar artículos:", err);
       }
@@ -106,7 +107,9 @@ const ScienceUTMHomepage = () => {
               Suscríbete
             </button>
             <div className="bg-gray-100 rounded-[15px] p-1 text-blue-500 hover:bg-gray-200 transition cursor-pointer h-7 w-10 flex items-center justify-center">
-              <FontAwesomeIcon icon={faUser} />
+              <NavLink to="/profile">
+                <FontAwesomeIcon icon={faUser} />
+              </NavLink>
             </div>
           </div>
         </div>
@@ -122,9 +125,8 @@ const ScienceUTMHomepage = () => {
           <p className="text-center text-gray-500">No hay artículos aún.</p>
         )}
 
-        {news.length >= 4 && (
+        {news.length >= 1 && (
           <>
-            {/* Noticia Principal tipo BBC */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
               <div className="lg:col-span-2">
                 <NavLink
@@ -149,9 +151,8 @@ const ScienceUTMHomepage = () => {
                 </NavLink>
               </div>
 
-              {/* Noticia secundaria destacada */}
               <div className="flex flex-col gap-4">
-                {news.slice(1, 3).map((n) => (
+                {news.slice(1, 5).map((n) => (
                   <NavLink
                     key={n.id_articulo}
                     to={`/articulos/${n.id_articulo}`}
@@ -177,27 +178,30 @@ const ScienceUTMHomepage = () => {
               </div>
             </div>
 
-            {/* Último artículo adicional en forma horizontal */}
-            <div className="mb-8">
-              <NavLink
-                to={`/articulos/${news[3].id_articulo}`}
-                className="flex flex-col md:flex-row border rounded-lg overflow-hidden hover:shadow-lg transition"
-              >
-                {news[3].imagen_principal && (
-                  <img
-                    src={`/${news[3].imagen_principal}`}
-                    alt={news[3].titulo}
-                    className="w-full md:w-[400px] h-[250px] object-cover"
-                  />
-                )}
-                <div className="p-6 flex flex-col justify-center">
-                  <h3 className="text-xl font-bold text-blue-700 hover:underline mb-2">
-                    {news[3].titulo}
-                  </h3>
-                  <p className="text-base text-gray-600">{news[3].contenido}</p>
-                </div>
-              </NavLink>
-            </div>
+            {news.length >= 0 && (
+              <div className="mb-8">
+                <NavLink
+                  to={`/articulos/${news[3].id_articulo}`}
+                  className="flex flex-col md:flex-row border rounded-lg overflow-hidden hover:shadow-lg transition"
+                >
+                  {news[3].imagen_principal && (
+                    <img
+                      src={`/${news[3].imagen_principal}`}
+                      alt={news[3].titulo}
+                      className="w-full md:w-[400px] h-[250px] object-cover"
+                    />
+                  )}
+                  <div className="p-6 flex flex-col justify-center">
+                    <h3 className="text-xl font-bold text-blue-700 hover:underline mb-2">
+                      {news[3].titulo}
+                    </h3>
+                    <p className="text-base text-gray-600">
+                      {news[3].contenido}
+                    </p>
+                  </div>
+                </NavLink>
+              </div>
+            )}
           </>
         )}
       </main>

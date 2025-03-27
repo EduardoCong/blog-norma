@@ -169,7 +169,6 @@ const ArticuloDetallePage = () => {
           <p className="text-center text-red-500">Artículo no encontrado.</p>
         )}
 
-        {/* Comentarios tipo Chat */}
         <section className="mt-12 max-w-3xl mx-auto">
           <h2 className="text-2xl font-semibold text-[#1A2B3C] mb-4">Comentarios</h2>
           <div className="bg-gray-50 border rounded-xl p-4 max-h-[300px] overflow-y-auto space-y-4">

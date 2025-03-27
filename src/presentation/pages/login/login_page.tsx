@@ -110,7 +110,6 @@ function LoginPage() {
       exit={{ opacity: 0, y: -50 }}
       transition={{ duration: 0.5 }}
     >
-      {/* NAVBAR */}
       <nav className="flex items-center justify-between p-4">
         <div className="flex items-center space-x-2 hover:cursor-pointer">
           <img
@@ -123,7 +122,7 @@ function LoginPage() {
         <ul className="flex space-x-2">
           <li>
             <NavLink
-              to="/login"
+              to="/"
               className={({ isActive }) =>
                 isActive
                   ? "button-register-active px-4 py-2 rounded-[12px]"
