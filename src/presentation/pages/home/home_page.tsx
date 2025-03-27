@@ -107,7 +107,7 @@ const ScienceUTMHomepage = () => {
         </div>
       </nav>
 
-      <main className="container mx-auto max-w-6xl px-10 py-15 flex-1">
+      <main className="container mx-auto max-w-6xl px-10 py-15 flex-2">
   <h2 className="text-3xl mb-2 font-jakarta">ScienceUTM</h2>
   <p className="mb-6 text-gray-700 text-lg font-medium">
     Mantente informado con las últimas noticias y descubrimientos.
