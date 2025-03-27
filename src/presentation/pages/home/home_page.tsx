@@ -3,13 +3,13 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faUser } from "@fortawesome/free-solid-svg-icons";
-import "../../../index.css";
 import {
   faTwitter,
   faFacebook,
   faGithub,
   faYoutube,
 } from "@fortawesome/free-brands-svg-icons";
+import "../../../index.css";
 
 const ScienceUTMHomepage = () => {
   interface Article {
@@ -17,6 +17,7 @@ const ScienceUTMHomepage = () => {
     titulo?: string;
     contenido?: string;
     imagen_principal?: string;
+    fecha_publicacion?: string;
   }
 
   const [news, setNews] = useState<Article[]>([]);
@@ -32,14 +33,9 @@ const ScienceUTMHomepage = () => {
 
         const data = await response.json();
 
-        localStorage.setItem("id_articulo", data.id_articulo);
-
         if (Array.isArray(data)) {
-          const ordenado = data.sort(
-            (a, b) => new Date(b.fecha_publicacion).getTime() - new Date(a.fecha_publicacion).getTime()
-          );
-          setNews(ordenado);
-        }        
+          setNews(data.reverse());
+        }
       } catch (err) {
         console.error("Error al cargar artículos:", err);
       }
@@ -48,182 +44,135 @@ const ScienceUTMHomepage = () => {
     fetchArticulos();
   }, []);
 
+  const getImageSrc = (url?: string) => {
+    if (!url) return "";
+    return url.startsWith("http")
+      ? url
+      : `http://localhost:4000/uploads/${url}`;
+  };
+
   return (
     <motion.div
-      className="min-h-screen bg-white text-[#1A2B3C] font-torres"
+      className="min-h-screen bg-white flex flex-col font-torres"
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: 100, opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <nav className="bg-[#0A2540] text-white shadow-md">
+      <nav className="bg-[#0A2540] text-white shadow-md p-2">
         <div className="px-4 py-2 flex justify-between items-center">
           <div className="flex justify-between items-center gap-6">
-            <img
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSy8Zl8c4c8H1mmsKu2n5EFcrBd-cn8003_g&s"
-              alt=""
-              className="h-10 w-10"
-            />
-            <div>ScienceUTM</div>
-            <div className="space-x-4 flex items-center">
-              <NavLink
-                to="/home"
-                className="text-white hover:text-blue-300 transition"
-              >
+            <div className="flex items-center gap-2">
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSy8Zl8c4c8H1mmsKu2n5EFcrBd-cn8003_g&s"
+                alt="logo"
+                className="h-10 w-10"
+              />
+              <div className="text-lg">ScienceUTM</div>
+            </div>
+            <div className="space-x-10 flex items-center">
+              <NavLink to="/home" className="hover:text-blue-300 font-[400]">
                 Inicio
               </NavLink>
-              <NavLink
-                to="/noticias"
-                className="text-white hover:text-blue-300 transition"
-              >
+              <NavLink to="/noticias" className="hover:text-blue-300 font-[400]">
                 Noticias
               </NavLink>
-              <NavLink
-                to="/descubrimientos"
-                className="text-white hover:text-blue-300 transition"
-              >
+              <NavLink to="/descubrimientos" className="hover:text-blue-300 font-[400]">
                 Descubrimientos
               </NavLink>
-              <NavLink
-                to="/expertos"
-                className="text-white hover:text-blue-300 transition"
-              >
+              <NavLink to="/expertos" className="hover:text-blue-300 font-[400]">
                 Expertos
               </NavLink>
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <div className="relative w-full max-w-xs">
+            <div className="relative">
+              <FontAwesomeIcon
+                icon={faSearch}
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+              />
               <input
                 type="text"
-                placeholder="Buscar artículos"
-                className="w-full px-2 py-1 rounded-full text-black focus:outline-none bg-gray-100 focus:ring-2 focus-search"
+                placeholder="Search"
+                className="w-30 pl-10 pr-4 py-2 rounded-[13px] bg-gray-100 text-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
-              <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-blue-500 cursor-pointer hover:text-blue-600 transition">
-                <FontAwesomeIcon icon={faSearch} />
+            </div>
+
+            <NavLink to="/profile">
+              <div className="w-9 h-9 flex items-center justify-center bg-white text-[#0A2540] border border-gray-200 rounded-full shadow-sm hover:bg-blue-50 hover:text-blue-800 transition">
+                <FontAwesomeIcon icon={faUser} className="text-[16px]" />
               </div>
-            </div>
-            <button className="bg-black text-white px-3 py-1 rounded-full transition hover:bg-[#ffffff] hover:text-black hover:cursor-pointer">
-              Suscríbete
-            </button>
-            <div className="bg-gray-100 rounded-[15px] p-1 text-blue-500 hover:bg-gray-200 transition cursor-pointer h-7 w-10 flex items-center justify-center">
-              <NavLink to="/profile">
-                <FontAwesomeIcon icon={faUser} />
-              </NavLink>
-            </div>
+            </NavLink>
           </div>
         </div>
       </nav>
 
-      <main className="container mx-auto max-w-6xl px-4 py-6 mt-5">
-        <h2 className="text-3xl font-bold mb-2">ScienceUTM</h2>
-        <p className="mb-6 text-gray-700 text-lg">
-          Mantente informado con las últimas noticias y descubrimientos.
-        </p>
+      <main className="container mx-auto max-w-6xl px-10 py-15 flex-1">
+  <h2 className="text-3xl mb-2 font-jakarta">ScienceUTM</h2>
+  <p className="mb-6 text-gray-700 text-lg font-medium">
+    Mantente informado con las últimas noticias y descubrimientos.
+  </p>
 
-        {news.length === 0 && (
-          <p className="text-center text-gray-500">No hay artículos aún.</p>
-        )}
-
-        {news.length >= 1 && (
-          <>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-              <div className="lg:col-span-2">
-                <NavLink
-                  to={`/articulos/${news[0].id_articulo}`}
-                  className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
-                >
-                  {news[0].imagen_principal && (
-                    <img
-                      src={`/${news[0].imagen_principal}`}
-                      alt={news[0].titulo}
-                      className="w-full h-[350px] object-cover"
-                    />
-                  )}
-                  <div className="p-4">
-                    <h3 className="text-2xl font-bold text-blue-800 hover:underline mb-2">
-                      {news[0].titulo}
-                    </h3>
-                    <p className="text-base text-gray-700 leading-relaxed">
-                      {news[0].contenido}
-                    </p>
-                  </div>
-                </NavLink>
-              </div>
-
-              <div className="flex flex-col gap-4">
-                {news.slice(1, 5).map((n) => (
-                  <NavLink
-                    key={n.id_articulo}
-                    to={`/articulos/${n.id_articulo}`}
-                    className="flex gap-3 border rounded-lg overflow-hidden hover:shadow transition"
-                  >
-                    <div className="w-1/3">
-                      <img
-                        src={`/${n.imagen_principal}`}
-                        alt={n.titulo}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="p-2 w-2/3 flex flex-col justify-center">
-                      <h4 className="text-md font-semibold text-blue-700 hover:underline">
-                        {n.titulo}
-                      </h4>
-                      <p className="text-sm text-gray-600 line-clamp-2">
-                        {n.contenido}
-                      </p>
-                    </div>
-                  </NavLink>
-                ))}
-              </div>
-            </div>
-
-            {news.length >= 0 && (
-              <div className="mb-8">
-                <NavLink
-                  to={`/articulos/${news[3].id_articulo}`}
-                  className="flex flex-col md:flex-row border rounded-lg overflow-hidden hover:shadow-lg transition"
-                >
-                  {news[3].imagen_principal && (
-                    <img
-                      src={`/${news[3].imagen_principal}`}
-                      alt={news[3].titulo}
-                      className="w-full md:w-[400px] h-[250px] object-cover"
-                    />
-                  )}
-                  <div className="p-6 flex flex-col justify-center">
-                    <h3 className="text-xl font-bold text-blue-700 hover:underline mb-2">
-                      {news[3].titulo}
-                    </h3>
-                    <p className="text-base text-gray-600">
-                      {news[3].contenido}
-                    </p>
-                  </div>
-                </NavLink>
-              </div>
-            )}
-          </>
-        )}
-      </main>
-
-      <footer className="bg-[#0A2540] text-white text-center py-2 h-25 p-20">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm mb-2 md:mb-0">
-            © All Rights Reserved. Blog Web Proyectos de Programación
+  {news.length === 0 ? (
+    <p className="text-center text-gray-500">No hay artículos aún.</p>
+  ) : (
+    <>
+      <div className="grid grid-cols-3 gap-6 mb-8">
+      {news.slice(1, 4).map((articulo) => (
+        <NavLink
+        key={articulo.id_articulo}
+        to={`/articulos/${articulo.id_articulo}`}
+        className="hover:shadow-md transition objetc-cover bg-white overflow-hidden rounded-lg"
+        >
+        <img
+          src={getImageSrc(articulo.imagen_principal)}
+          alt={articulo.titulo}
+          className="w-full h-[200px] object-cover object-center rounded-lg"
+        />
+        <div className="p-4">
+          <h3 className="text-base text-[#0A2540] font-bold mb-1 line-clamp-2">
+          {articulo.titulo}
+          </h3>
+          <p className="text-sm text-gray-600 line-clamp-3">
+          {articulo.contenido}
           </p>
-          <div className="flex space-x-2 text-xl">
-            <NavLink to="#">
-              <FontAwesomeIcon icon={faFacebook} />
-            </NavLink>
-            <NavLink to="#">
-              <FontAwesomeIcon icon={faTwitter} />
-            </NavLink>
-            <NavLink to="#">
-              <FontAwesomeIcon icon={faYoutube} />
-            </NavLink>
-            <NavLink to="#">
-              <FontAwesomeIcon icon={faGithub} />
-            </NavLink>
+        </div>
+        </NavLink>
+      ))}
+      </div>
+
+      <NavLink to={`/articulos/${news[0].id_articulo}`}>
+      <div className="w-full mb-8 hover:cursor-pointer transition bg-white overflow-hidden rounded-lg">
+        <img
+        src={getImageSrc(news[0].imagen_principal)}
+        alt={news[0].titulo}
+        className="w-full h-[500px] object-cover object-center rounded-lg"
+        />
+        <div className="mt-4">
+        <h3 className="text-2xl text-[#0A2540] font-bold mb-2">
+          {news[0].titulo}
+        </h3>
+        <p className="text-base text-gray-700 leading-relaxed">
+          {news[0].contenido}
+        </p>
+        </div>
+      </div>
+      </NavLink>
+    </>
+  )}
+  
+</main>
+
+      <footer className="bg-[#0A2540] text-white text-center py-6 mt-10">
+        <div className="flex flex-col md:flex-row justify-between items-center px-4">
+          <p className="text-sm mb-2 md:mb-0">
+            © Todos los derechos reservados. Blog académico ScienceUTM.
+          </p>
+          <div className="flex space-x-3 text-xl">
+            <NavLink to="#"><FontAwesomeIcon icon={faFacebook} /></NavLink>
+            <NavLink to="#"><FontAwesomeIcon icon={faTwitter} /></NavLink>
+            <NavLink to="#"><FontAwesomeIcon icon={faYoutube} /></NavLink>
+            <NavLink to="#"><FontAwesomeIcon icon={faGithub} /></NavLink>
           </div>
         </div>
       </footer>

@@ -11,7 +11,7 @@ import {
   faGithub,
   faYoutube,
 } from "@fortawesome/free-brands-svg-icons";
-import '../../../index.css'
+import '../../../index.css';
 
 const ArticuloDetallePage = () => {
   interface Article {
@@ -118,7 +118,7 @@ const ArticuloDetallePage = () => {
 
   return (
     <motion.div
-      className="min-h-screen bg-white text-[#1A2B3C] font-torres"
+      className="min-h-screen bg-white text-[#1A2B3C] font-torres flex flex-col"
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: 100, opacity: 0 }}
@@ -130,8 +130,7 @@ const ArticuloDetallePage = () => {
             to="/home"
             className="text-white hover:text-blue-300 transition"
           >
-            <FontAwesomeIcon icon={faArrowLeft} className="mr-2" /> Volver al
-            inicio
+            <FontAwesomeIcon icon={faArrowLeft} className="mr-2" /> Volver al inicio
           </NavLink>
           <div className="flex justify-between items-center gap-6">
             <img
@@ -139,63 +138,63 @@ const ArticuloDetallePage = () => {
               alt=""
               className="h-10 w-10"
             />
-            <div>ScienceUTM</div>
+            <div className="text-lg">ScienceUTM</div>
           </div>
         </div>
       </nav>
 
-      <main className="px-6 py-10 max-w-6xl mx-auto">
+      <main className="px-6 py-10 max-w-[800px] mx-auto flex-1">
         {loading ? (
           <p className="text-center text-gray-500">Cargando artículo...</p>
         ) : articulo ? (
-          <div className="grid md:grid-cols-2 gap-6 items-center">
+          <article className="space-y-6">
+            <h1 className="text-4xl text-[#0A2540] leading-tight">
+              {articulo.titulo || "Sin título"}
+            </h1>
             {articulo.imagen_principal && (
               <img
-                src={`/${articulo.imagen_principal}`}
+                src={articulo.imagen_principal}
                 alt={articulo.titulo}
-                className="w-full h-[400px] object-cover rounded-lg shadow-md"
+                className="w-full h-150 rounded-lg shadow-md"
               />
             )}
-            <div>
-              <h1 className="text-4xl font-bold text-blue-800 mb-4">
-                {articulo.titulo || "Sin título"}
-              </h1>
-              <p className="text-gray-700 text-lg leading-relaxed">
-                {articulo.contenido || "Sin contenido disponible."}
-              </p>
-            </div>
-          </div>
+            <p className="text-lg text-gray-700 leading-8 whitespace-pre-line">
+              {articulo.contenido || "Sin contenido disponible."}
+            </p>
+          </article>
         ) : (
           <p className="text-center text-red-500">Artículo no encontrado.</p>
         )}
 
-        <section className="mt-12 max-w-3xl mx-auto">
-          <h2 className="text-2xl font-semibold text-[#1A2B3C] mb-4">Comentarios</h2>
-          <div className="bg-gray-50 border rounded-xl p-4 max-h-[300px] overflow-y-auto space-y-4">
+        <section className="mt-12">
+          <h2 className="text-2xl text-[#1A2B3C] mb-4">Comentarios</h2>
+          <div className="space-y-4">
             {comentarios.length > 0 ? (
               comentarios.map((comentario) => (
-                <div key={comentario.id_comentario} className="bg-white p-3 rounded-md shadow-sm">
-                  <p className="text-blue-800 font-semibold">
+                <div key={comentario.id_comentario} className="border-b pb-3">
+                  <p className="text-blue-800">
                     {comentario.nombre_usuario}
                     <span className="ml-2 text-xs text-gray-500">
                       {new Date(comentario.fecha_comentario).toLocaleString()}
                     </span>
                   </p>
-                  <p className="text-sm text-gray-700 mt-1">{comentario.contenido}</p>
+                  <p className="text-sm text-gray-700 mt-1">
+                    {comentario.contenido}
+                  </p>
                 </div>
               ))
             ) : (
-              <p className="text-center text-sm text-gray-500">No hay comentarios aún.</p>
+              <p className="text-sm text-gray-500">No hay comentarios aún.</p>
             )}
           </div>
 
-          <div className="mt-4">
+          <div className="mt-6">
             <textarea
-              className="w-full border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
               placeholder="Escribe tu comentario..."
               value={nuevoComentario}
               onChange={(e) => setNuevoComentario(e.target.value)}
-              rows={3}
+              rows={4}
             ></textarea>
             <button
               onClick={handleComentarioSubmit}
@@ -207,12 +206,12 @@ const ArticuloDetallePage = () => {
         </section>
       </main>
 
-      <footer className="bg-[#0A2540] text-white text-center py-6 mt-10">
-        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
+      <footer className="bg-[#0A2540] text-white text-center py-6">
+        <div className="flex flex-col md:flex-row justify-between items-center px-4">
           <p className="text-sm mb-2 md:mb-0">
-            © All Rights Reserved. Blog Web Proyectos de Programación
+            © Todos los derechos reservados. Blog académico ScienceUTM.
           </p>
-          <div className="flex space-x-4 text-xl">
+          <div className="flex space-x-3 text-xl">
             <NavLink to="#">
               <FontAwesomeIcon icon={faFacebook} />
             </NavLink>

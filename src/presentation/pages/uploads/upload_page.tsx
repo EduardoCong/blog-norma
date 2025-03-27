@@ -28,7 +28,7 @@ const CrearArticulo: React.FC = () => {
   const handleSubmit = async () => {
     try {
       const token = localStorage.getItem("token");
-      const fecha_publicacion = new Date().toISOString().split("T")[0];
+      const fecha_publicacion = new Date().toLocaleDateString("sv-SE")
 
       const datosArticulo = {
         ...formulario,
