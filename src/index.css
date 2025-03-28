@@ -130,4 +130,5 @@
 
 .font-jakarta{
   font-family: var(--font-family-primary);
+  font-weight: 800;
 }

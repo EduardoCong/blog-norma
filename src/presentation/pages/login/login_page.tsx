@@ -73,11 +73,12 @@ function LoginPage() {
           throw new Error(data.error || "Error al iniciar sesión");
         }
 
-        localStorage.setItem("correo", data.usuario.email);
-        localStorage.setItem("nombre_usuario", data.usuario.nombre_usuario);
         localStorage.setItem("rol", data.usuario.id_autor);
         localStorage.setItem("token", data.usuario.token);
         localStorage.setItem("token_expires", data.usuario.token_expires);
+        localStorage.setItem("id_autor", data.usuario.id_autor);
+
+        console.log("Usuario logueado:", data.usuario.id_autor);
 
         Swal.fire({
           icon: "success",

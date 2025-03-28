@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faUser } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -9,6 +9,7 @@ import {
   faGithub,
   faYoutube,
 } from "@fortawesome/free-brands-svg-icons";
+// import axios from "axios";
 import "../../../index.css";
 
 const ScienceUTMHomepage = () => {
@@ -21,6 +22,9 @@ const ScienceUTMHomepage = () => {
   }
 
   const [news, setNews] = useState<Article[]>([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchArticulos = async () => {
@@ -50,6 +54,42 @@ const ScienceUTMHomepage = () => {
       ? url
       : `http://localhost:4000/uploads/${url}`;
   };
+
+  const handleLogout = async () => {
+    try {
+      // const token = localStorage.getItem("token");
+      // await axios.post("http://localhost:4000/api2/logout", {}, {
+      //   headers: { Authorization: `Bearer ${token}` },
+      // });
+
+      localStorage.removeItem("nombre_usuario");
+      localStorage.removeItem("correo");
+      localStorage.removeItem("contrasena");
+      localStorage.removeItem("token");
+      localStorage.removeItem("rol");
+      localStorage.removeItem("token_expires");
+      localStorage.removeItem("id_autor");
+
+      navigate("/");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !(dropdownRef.current as HTMLElement).contains(event.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <motion.div
@@ -98,70 +138,90 @@ const ScienceUTMHomepage = () => {
               />
             </div>
 
-            <NavLink to="/profile">
-              <div className="w-9 h-9 flex items-center justify-center bg-white text-[#0A2540] border border-gray-200 rounded-full shadow-sm hover:bg-blue-50 hover:text-blue-800 transition">
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="w-9 h-9 flex items-center justify-center bg-white text-[#0A2540] border border-gray-200 rounded-full shadow-sm hover:bg-blue-50 hover:text-blue-800 transition"
+              >
                 <FontAwesomeIcon icon={faUser} className="text-[16px]" />
-              </div>
-            </NavLink>
+              </button>
+
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg text-sm z-50">
+                  <NavLink
+                    to="/profile"
+                    onClick={() => setDropdownOpen(false)}
+                    className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
+                  >
+                    Perfil
+                  </NavLink>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
+                  >
+                    Cerrar sesión
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </nav>
 
       <main className="container mx-auto max-w-6xl px-10 py-15 flex-2">
-  <h2 className="text-3xl mb-2 font-jakarta">ScienceUTM</h2>
-  <p className="mb-6 text-gray-700 text-lg font-medium">
-    Mantente informado con las últimas noticias y descubrimientos.
-  </p>
-
-  {news.length === 0 ? (
-    <p className="text-center text-gray-500">No hay artículos aún.</p>
-  ) : (
-    <>
-      <div className="grid grid-cols-3 gap-6 mb-8">
-      {news.slice(1, 4).map((articulo) => (
-        <NavLink
-        key={articulo.id_articulo}
-        to={`/articulos/${articulo.id_articulo}`}
-        className="hover:shadow-md transition objetc-cover bg-white overflow-hidden rounded-lg"
-        >
-        <img
-          src={getImageSrc(articulo.imagen_principal)}
-          alt={articulo.titulo}
-          className="w-full h-[200px] object-cover object-center rounded-lg"
-        />
-        <div className="p-4">
-          <h3 className="text-base text-[#0A2540] font-bold mb-1 line-clamp-2">
-          {articulo.titulo}
-          </h3>
-          <p className="text-sm text-gray-600 line-clamp-3">
-          {articulo.contenido}
-          </p>
-        </div>
-        </NavLink>
-      ))}
-      </div>
-
-      <NavLink to={`/articulos/${news[0].id_articulo}`}>
-      <div className="w-full mb-8 hover:cursor-pointer transition bg-white overflow-hidden rounded-lg">
-        <img
-        src={getImageSrc(news[0].imagen_principal)}
-        alt={news[0].titulo}
-        className="w-full h-[500px] object-cover object-center rounded-lg"
-        />
-        <div className="mt-4">
-        <h3 className="text-2xl text-[#0A2540] font-bold mb-2">
-          {news[0].titulo}
-        </h3>
-        <p className="text-base text-gray-700 leading-relaxed">
-          {news[0].contenido}
+        <h2 className="text-3xl mb-2 font-jakarta">ScienceUTM</h2>
+        <p className="mb-6 text-gray-700 text-lg font-medium">
+          Mantente informado con las últimas noticias y descubrimientos.
         </p>
-        </div>
-      </div>
-      </NavLink>
-    </>
-  )}
-  
-</main>
+
+        {news.length === 0 ? (
+          <p className="text-center text-gray-500">No hay artículos aún.</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-3 gap-6 mb-8">
+              {news.slice(1, 4).map((articulo) => (
+                <NavLink
+                  key={articulo.id_articulo}
+                  to={`/articulos/${articulo.id_articulo}`}
+                  className="hover:shadow-md transition object-cover bg-white overflow-hidden rounded-lg"
+                >
+                  <img
+                    src={getImageSrc(articulo.imagen_principal)}
+                    alt={articulo.titulo}
+                    className="w-full h-[200px] object-cover object-center rounded-lg"
+                  />
+                  <div className="p-4">
+                    <h3 className="text-base text-[#0A2540] font-bold mb-1 line-clamp-2">
+                      {articulo.titulo}
+                    </h3>
+                    <p className="text-sm text-gray-600 line-clamp-3">
+                      {articulo.contenido}
+                    </p>
+                  </div>
+                </NavLink>
+              ))}
+            </div>
+
+            <NavLink to={`/articulos/${news[0].id_articulo}`}>
+              <div className="w-full mb-8 hover:cursor-pointer transition bg-white overflow-hidden rounded-lg">
+                <img
+                  src={getImageSrc(news[0].imagen_principal)}
+                  alt={news[0].titulo}
+                  className="w-full h-[500px] object-cover object-center rounded-lg"
+                />
+                <div className="mt-4">
+                  <h3 className="text-2xl text-[#0A2540] font-bold mb-2">
+                    {news[0].titulo}
+                  </h3>
+                  <p className="text-base text-gray-700 leading-relaxed">
+                    {news[0].contenido}
+                  </p>
+                </div>
+              </div>
+            </NavLink>
+          </>
+        )}
+      </main>
 
       <footer className="bg-[#0A2540] text-white text-center py-6 mt-10">
         <div className="flex flex-col md:flex-row justify-between items-center px-4">
