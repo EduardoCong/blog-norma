@@ -9,7 +9,6 @@ import {
   faGithub,
   faYoutube,
 } from "@fortawesome/free-brands-svg-icons";
-// import axios from "axios";
 import "../../../index.css";
 
 const ScienceUTMHomepage = () => {
@@ -22,9 +21,24 @@ const ScienceUTMHomepage = () => {
   }
 
   const [news, setNews] = useState<Article[]>([]);
+  const [filteredNews, setFilteredNews] = useState<Article[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const searchTimeout = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
+
+  const getImageSrc = (url?: string) => {
+    if (!url) return "";
+    return url.startsWith("http")
+      ? url
+      : `http://localhost:4000/uploads/${url}`;
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/");
+  };
 
   useEffect(() => {
     const fetchArticulos = async () => {
@@ -34,41 +48,34 @@ const ScienceUTMHomepage = () => {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
-
         const data = await response.json();
-
         if (Array.isArray(data)) {
-          setNews(data.reverse());
+          const reversed = data.reverse();
+          setNews(reversed);
+          setFilteredNews(reversed);
         }
       } catch (err) {
         console.error("Error al cargar artículos:", err);
       }
     };
-
     fetchArticulos();
   }, []);
 
-  const getImageSrc = (url?: string) => {
-    if (!url) return "";
-    return url.startsWith("http")
-      ? url
-      : `http://localhost:4000/uploads/${url}`;
-  };
-
-  const handleLogout = async () => {
-    try {
-      // const token = localStorage.getItem("token");
-      // await axios.post("http://localhost:4000/api2/logout", {}, {
-      //   headers: { Authorization: `Bearer ${token}` },
-      // });
-
-      localStorage.clear();
-
-      navigate("/");
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-    }
-  };
+  useEffect(() => {
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(() => {
+      if (searchTerm.trim() === "") {
+        setFilteredNews(news);
+      } else {
+        const filtered = news.filter(
+          (a) =>
+            a.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            a.contenido?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredNews(filtered);
+      }
+    }, 400);
+  }, [searchTerm, news]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -95,41 +102,17 @@ const ScienceUTMHomepage = () => {
     >
       <nav className="bg-[#0A2540] text-white shadow-md p-2">
         <div className="px-4 py-2 flex justify-between items-center">
-          <div className="flex justify-between items-center gap-6">
-            <div className="flex items-center gap-2">
-              <NavLink to="/home" className={"hover:cursor-pointer"}>
-                <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSy8Zl8c4c8H1mmsKu2n5EFcrBd-cn8003_g&s"
-                  alt="logo"
-                  className="h-10 w-10"
-                />
-              </NavLink>
-              <div className="text-lg">ScienceUTM</div>
-            </div>
-            <div className="space-x-10 flex items-center">
-              <NavLink to="/home" className="hover:text-blue-300 font-[400]">
-                Inicio
-              </NavLink>
-              <NavLink
-                to="/noticias"
-                className="hover:text-blue-300 font-[400]"
-              >
-                Noticias
-              </NavLink>
-              <NavLink
-                to="/descubrimientos"
-                className="hover:text-blue-300 font-[400]"
-              >
-                Descubrimientos
-              </NavLink>
-              <NavLink
-                to="/expertos"
-                className="hover:text-blue-300 font-[400]"
-              >
-                Expertos
-              </NavLink>
-            </div>
+          <div className="flex items-center gap-2">
+            <NavLink to="/home">
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSy8Zl8c4c8H1mmsKu2n5EFcrBd-cn8003_g&s"
+                alt="logo"
+                className="h-10 w-10"
+              />
+            </NavLink>
+            <div className="text-lg">ScienceUTM</div>
           </div>
+
           <div className="flex items-center gap-6">
             <div className="relative">
               <FontAwesomeIcon
@@ -138,8 +121,10 @@ const ScienceUTMHomepage = () => {
               />
               <input
                 type="text"
-                placeholder="Search"
-                className="w-30 pl-10 pr-4 py-2 rounded-[13px] bg-gray-100 text-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Buscar artículo..."
+                className="w-60 pl-10 pr-4 py-2 rounded-[13px] bg-gray-100 text-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
 
@@ -148,7 +133,7 @@ const ScienceUTMHomepage = () => {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="w-9 h-9 flex items-center justify-center bg-white text-[#0A2540] border border-gray-200 rounded-full shadow-sm hover:bg-blue-50 hover:text-blue-800 transition hover:cursor-pointer"
               >
-                <FontAwesomeIcon icon={faUser} className="text-[16px]" />
+                <FontAwesomeIcon icon={faUser} />
               </button>
 
               <AnimatePresence>
@@ -163,13 +148,13 @@ const ScienceUTMHomepage = () => {
                     <NavLink
                       to="/profile"
                       onClick={() => setDropdownOpen(false)}
-                      className="block px-4 py-2 text-gray-800 hover:bg-[#0a192f] rounded-md hover:text-white"
+                      className="block px-4 py-2 text-gray-800 hover:bg-[#0a192f] hover:text-white"
                     >
                       Perfil
                     </NavLink>
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 hover:bg-[#0a192f] text-red-600 rounded-md hover:text-white"
+                      className="w-full text-left px-4 py-2 hover:bg-[#0a192f] text-red-600 hover:text-white"
                     >
                       Cerrar sesión
                     </button>
@@ -181,30 +166,32 @@ const ScienceUTMHomepage = () => {
         </div>
       </nav>
 
-      <main className="container mx-auto max-w-6xl px-10 py-15 flex-2">
+      <main className="container mx-auto max-w-6xl px-10 py-10 flex-2">
         <h2 className="text-3xl mb-2 font-jakarta">ScienceUTM</h2>
-        <p className="mb-6 text-gray-700 text-lg font-medium">
+        <p className="mb-6 text-gray-700 text-lg">
           Mantente informado con las últimas noticias y descubrimientos.
         </p>
 
-        {news.length === 0 ? (
-          <p className="text-center text-gray-500">No hay artículos aún.</p>
+        {filteredNews.length === 0 ? (
+          <p className="text-center text-gray-500">
+            No se encontraron artículos.
+          </p>
         ) : (
           <>
-            <div className="grid grid-cols-3 gap-6 mb-8">
-              {news.slice(1, 4).map((articulo) => (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {filteredNews.slice(1, 4).map((articulo) => (
                 <NavLink
                   key={articulo.id_articulo}
                   to={`/articulos/${articulo.id_articulo}`}
-                  className="hover:shadow-md transition object-cover bg-white overflow-hidden rounded-lg"
+                  className="bg-white rounded-lg overflow-hidden hover:shadow-md transition"
                 >
                   <img
                     src={getImageSrc(articulo.imagen_principal)}
                     alt={articulo.titulo}
-                    className="w-full h-[200px] object-cover object-center rounded-lg"
+                    className="w-full h-[200px] object-cover"
                   />
                   <div className="p-4">
-                    <h3 className="text-base text-[#0A2540] font-bold mb-1 line-clamp-2">
+                    <h3 className="text-base text-[#0A2540] mb-1 break-words whitespace-normal">
                       {articulo.titulo}
                     </h3>
                     <p className="text-sm text-gray-600 line-clamp-3">
@@ -215,19 +202,19 @@ const ScienceUTMHomepage = () => {
               ))}
             </div>
 
-            <NavLink to={`/articulos/${news[0].id_articulo}`}>
-              <div className="w-full mb-8 hover:cursor-pointer transition bg-white overflow-hidden rounded-lg">
+            <NavLink to={`/articulos/${filteredNews[0].id_articulo}`}>
+              <div className="mb-8 transition bg-white rounded-lg overflow-hidden hover:cursor-pointer">
                 <img
-                  src={getImageSrc(news[0].imagen_principal)}
-                  alt={news[0].titulo}
-                  className="w-full h-[500px] object-cover object-center rounded-lg"
+                  src={getImageSrc(filteredNews[0].imagen_principal)}
+                  alt={filteredNews[0].titulo}
+                  className="w-full h-[500px] object-cover"
                 />
-                <div className="mt-4">
-                  <h3 className="text-2xl text-[#0A2540] font-bold mb-2">
-                    {news[0].titulo}
+                <div className="p-4">
+                  <h3 className="text-2xl text-[#0A2540] mb-2">
+                    {filteredNews[0].titulo}
                   </h3>
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    {news[0].contenido}
+                  <p className="text-base text-gray-700">
+                    {filteredNews[0].contenido}
                   </p>
                 </div>
               </div>

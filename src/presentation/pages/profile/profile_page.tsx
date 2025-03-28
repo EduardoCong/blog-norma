@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPen, faPlus, faUpload } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faPen, faPlus, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { useDropzone } from "react-dropzone";
 import { NavLink } from "react-router-dom";
 import "../../../index.css";
@@ -24,7 +24,6 @@ interface PerfilData {
 const PerfilPage = () => {
   const [perfil, setPerfil] = useState<PerfilData | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [editandoBio, setEditandoBio] = useState(false);
   const [nuevaBio, setNuevaBio] = useState("");
@@ -34,11 +33,8 @@ const PerfilPage = () => {
       const id = localStorage.getItem("id_autor");
       const token = localStorage.getItem("token");
 
-      const imgCache = localStorage.getItem("imgPerfil");
-      if (imgCache) {
-        setImageBase64(imgCache);
-      }
       if (!id || !token) return;
+
       try {
         const { data } = await axios.get(
           `http://localhost:4000/api2/usersAutor/${id}`,
@@ -51,20 +47,21 @@ const PerfilPage = () => {
         console.error("Error al cargar perfil:", error);
       }
     };
+
     fetchPerfil();
   }, []);
 
   const onDrop = (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     const reader = new FileReader();
+
     reader.onloadend = () => {
       const base64 = reader.result?.toString();
       if (base64) {
-        setImageBase64(base64);
-        localStorage.setItem("imgPerfil", base64);
         actualizarFotoPerfil(base64);
       }
     };
+
     reader.readAsDataURL(file);
   };
 
@@ -73,15 +70,36 @@ const PerfilPage = () => {
     accept: { "image/*": [] },
   });
 
+  const actualizarFotoPerfil = async (base64: string) => {
+    const token = localStorage.getItem("token");
+    const id = localStorage.getItem("id_autor");
+
+    try {
+      const res = await axios.post(
+        `http://localhost:4000/uploads/users/${id}`,
+        { foto_perfil: base64 },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const secureUrl = res.data.secure_url;
+      localStorage.setItem("foto_perfil", secureUrl);
+      setPerfil((prev) => (prev ? { ...prev, foto: secureUrl } : prev));
+      console.log("Imagen actualizada en DB");
+    } catch (error) {
+      console.error("Error al subir imagen:", error);
+    }
+  };
+
   const handleGuardarPassword = async () => {
     const id = localStorage.getItem("id_autor");
     const token = localStorage.getItem("token");
+
     try {
       await axios.put(
         `http://localhost:4000/api2/users/${id}`,
-        {
-          contrasena: newPassword,
-        },
+        { contrasena: newPassword },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -96,6 +114,7 @@ const PerfilPage = () => {
   const actualizarBiografia = async () => {
     const token = localStorage.getItem("token");
     const id = localStorage.getItem("id_autor");
+
     try {
       await axios.put(
         `http://localhost:4000/api2/users/${id}`,
@@ -111,24 +130,6 @@ const PerfilPage = () => {
     }
   };
 
-  const actualizarFotoPerfil = async (base64: string) => {
-    const token = localStorage.getItem("token");
-    const id = localStorage.getItem("id_autor");
-    try {
-      await axios.post(
-        `http://localhost:4000/api2/users/${id}`,
-        { foto_perfil: base64 },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setPerfil((prev) => (prev ? { ...prev, foto: base64 } : prev));
-      console.log("Imagen actualizada en DB");
-    } catch (error) {
-      console.error("Error al subir imagen:", error);
-    }
-  };
-
   if (!perfil)
     return (
       <p className="text-center mt-10 text-gray-500">Cargando perfil...</p>
@@ -136,36 +137,38 @@ const PerfilPage = () => {
 
   return (
     <motion.main
-      className="min-h-screen bg-[#F5F8FA]rounded-xl shadow-md font-jakarta flex flex-col"
+      className="min-h-screen bg-[#F5F8FA] rounded-xl shadow-md font-jakarta flex flex-col"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <NavLink to="/home" className="hover:cursor-pointer">
-        <nav className="bg-[#0A2540] text-white shadow-md p-2">
-          <div className="px-4 py-2 flex justify-between items-center">
-            <div className="flex justify-between items-center gap-6">
-              <div className="flex items-center gap-2">
-                <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSy8Zl8c4c8H1mmsKu2n5EFcrBd-cn8003_g&s"
-                  alt="logo"
-                  className="h-10 w-10"
-                />
-                <div className="text-lg">ScienceUTM</div>
-              </div>
-            </div>
+      <nav className="bg-[#0A2540] text-white shadow-md">
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+          <NavLink
+            to="/home"
+            className="text-white hover:text-blue-300 transition"
+          >
+            <FontAwesomeIcon icon={faArrowLeft} className="mr-2" /> Volver al inicio
+          </NavLink>
+          <div className="flex justify-between items-center gap-6">
+            <img
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSy8Zl8c4c8H1mmsKu2n5EFcrBd-cn8003_g&s"
+              alt=""
+              className="h-10 w-10"
+            />
+            <div className="text-lg">ScienceUTM</div>
           </div>
-        </nav>
-      </NavLink>
+        </div>
+      </nav>
 
       <main className="m-10 flex-2">
         <h2 className="text-2xl mb-6">Detalles personales</h2>
 
         <div className="flex justify-center items-center gap-6 mb-6">
-          {perfil.foto || imageBase64 ? (
+          {perfil.foto || localStorage.getItem("foto_perfil") ? (
             <div {...getRootProps()}>
               <img
-                src={imageBase64 || `/uploads/${perfil.foto}`}
+                src={perfil.foto || localStorage.getItem("foto_perfil") || ""}
                 alt="Foto de perfil"
                 className="w-60 h-60 object-cover rounded-full shadow-lg border hover:cursor-pointer"
               />
@@ -181,24 +184,23 @@ const PerfilPage = () => {
             </div>
           )}
 
-<NavLink
-  to="/crear-articulo"
-  className="group flex flex-col items-center transition-transform hover:scale-105 duration-300"
->
-  <div className="w-40 h-40 flex items-center justify-center bg-[#0A2540] text-white rounded-full shadow-md">
-    <FontAwesomeIcon icon={faUpload} className="text-[64px]" />
-  </div>
-  <span className="mt-2 text-sm text-gray-700 group-hover:text-[#0A2540] transition-colors duration-300">
-    Subir artículo
-  </span>
-</NavLink>
-
+          <NavLink
+            to="/crear-articulo"
+            className="group flex flex-col items-center transition-transform hover:scale-105 duration-300"
+          >
+            <div className="w-40 h-40 flex items-center justify-center bg-[#0A2540] text-white rounded-full shadow-md">
+              <FontAwesomeIcon icon={faUpload} className="text-[64px]" />
+            </div>
+            <span className="mt-2 text-sm text-gray-700 group-hover:text-[#0A2540] transition-colors duration-300">
+              Subir artículo
+            </span>
+          </NavLink>
         </div>
 
         <div className="space-y-6">
           <div className="border-b pb-3">
             <p className="text-sm text-gray-500">Nombre de usuario</p>
-            <p className="text-lg ">{perfil.nombre_usuario}</p>
+            <p className="text-lg">{perfil.nombre_usuario}</p>
           </div>
 
           <div className="border-b pb-3">
@@ -233,15 +235,12 @@ const PerfilPage = () => {
               </div>
             ) : (
               <div className="flex items-center justify-between">
-                <p className="text-lg ">**********</p>
+                <p className="text-lg">**********</p>
                 <button
                   onClick={() => setShowPassword(true)}
                   className="text-[0a192f] hover:text-blue-800"
                 >
-                  <FontAwesomeIcon
-                    icon={faPen}
-                    className="hover:cursor-pointer"
-                  />
+                  <FontAwesomeIcon icon={faPen} />
                 </button>
               </div>
             )}
@@ -261,13 +260,13 @@ const PerfilPage = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={actualizarBiografia}
-                    className="h-9 w-20 bg-black rounded-[12px] text-[12px] text-white hover:cursor-pointer hover:bg-green-800"
+                    className="h-9 w-20 bg-black rounded-[12px] text-[12px] text-white hover:bg-green-800"
                   >
                     Guardar
                   </button>
                   <button
                     onClick={() => setEditandoBio(false)}
-                    className="h-9 w-20 bg-black rounded-[12px] text-[12px] text-white hover:cursor-pointer hover:bg-red-800"
+                    className="h-9 w-20 bg-black rounded-[12px] text-[12px] text-white hover:bg-red-800"
                   >
                     Cancelar
                   </button>
@@ -276,18 +275,14 @@ const PerfilPage = () => {
             ) : (
               <div className="flex items-center justify-between">
                 <p className="text-lg italic text-gray-800">
-                  {perfil.biografia ? (
-                    `“${perfil.biografia}”`
-                  ) : (
-                    <span className="text-gray-400">None set</span>
-                  )}
+                  {perfil.biografia ? `“${perfil.biografia}”` : "None set"}
                 </p>
                 <button
                   onClick={() => {
                     setEditandoBio(true);
                     setNuevaBio(perfil.biografia || "");
                   }}
-                  className="text-[0a192f] hover:text-blue-800 hover:cursor-pointer"
+                  className="text-[0a192f] hover:text-blue-800"
                 >
                   <FontAwesomeIcon icon={perfil.biografia ? faPen : faPlus} />
                 </button>

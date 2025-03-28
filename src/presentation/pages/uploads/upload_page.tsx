@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
 interface FormularioArticulo {
   titulo: string;
@@ -35,7 +37,10 @@ const CrearArticulo = () => {
     document.title = "Nuevo Artículo | ScienceUTM";
   }, []);
 
-  const handleChange = (campo: keyof FormularioArticulo, valor: string | number) => {
+  const handleChange = (
+    campo: keyof FormularioArticulo,
+    valor: string | number
+  ) => {
     setFormulario((prev) => ({ ...prev, [campo]: valor }));
   };
 
@@ -49,15 +54,21 @@ const CrearArticulo = () => {
         fecha_publicacion,
       };
 
-      const response = await axios.post("http://localhost:4000/api2/crearArticulos", datosArticulo, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.post(
+        "http://localhost:4000/uploads/crearArticulos",
+        datosArticulo,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      Swal.fire("¡Publicado!", response.data.message, "success").then(() => navigate("/home"));
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      Swal.fire("¡Publicado!", response.data.message, "success").then(() =>
+        navigate("/home")
+      );
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       Swal.fire("Error", "Algo salió mal al publicar el artículo", "error");
     }
@@ -78,23 +89,39 @@ const CrearArticulo = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
     >
-      <nav className="bg-[#0A2540] text-white shadow-md p-4">
-        <div className="flex items-center gap-4">
-          <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSy8Zl8c4c8H1mmsKu2n5EFcrBd-cn8003_g&s"
-            className="h-10 w-10"
-            alt="logo"
-          />
-          <div className="text-lg font-bold">ScienceUTM</div>
+      <nav className="bg-[#0A2540] text-white shadow-md">
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+          <NavLink
+            to="/profile"
+            className="text-white hover:text-blue-300 transition"
+          >
+            <FontAwesomeIcon icon={faArrowLeft} className="mr-2" /> Volver atras
+          </NavLink>
+          <div className="flex justify-between items-center gap-6">
+            <img
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSy8Zl8c4c8H1mmsKu2n5EFcrBd-cn8003_g&s"
+              alt=""
+              className="h-10 w-10"
+            />
+            <div className="text-lg">ScienceUTM</div>
+          </div>
         </div>
       </nav>
 
       <main className="flex-1 flex items-center justify-center px-4 py-10">
         <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl">
-          <div className="absolute top-0 left-0 w-full h-28 rounded-t-2xl bg-cover bg-center" style={{ backgroundImage: 'url("https://img.freepik.com/vector-gratis/fondo-galaxia-colorido_23-2148972702.jpg")' }}></div>
+          <div
+            className="absolute top-0 left-0 w-full h-28 rounded-t-2xl bg-cover bg-center"
+            style={{
+              backgroundImage:
+                'url("https://img.freepik.com/vector-gratis/fondo-galaxia-colorido_23-2148972702.jpg")',
+            }}
+          ></div>
           <div className="pt-32 pb-10 px-8">
             <div className="bg-white rounded-xl p-6 shadow-md">
-              <h2 className="text-2xl font-bold text-center mb-6 text-[#0A2540]">Nuevo Artículo</h2>
+              <h2 className="text-2xl font-bold text-center mb-6 text-[#0A2540]">
+                Nuevo Artículo
+              </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="col-span-2">
@@ -121,24 +148,41 @@ const CrearArticulo = () => {
                   <label className="text-sm text-gray-700">Categoría</label>
                   <select
                     value={formulario.id_categoria}
-                    onChange={(e) => handleChange("id_categoria", e.target.value)}
+                    onChange={(e) =>
+                      handleChange("id_categoria", e.target.value)
+                    }
                     className="w-full border border-gray-300 rounded px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-[#0A2540]"
                   >
                     <option value="">Selecciona una categoría</option>
                     {categoriasDisponibles.map((cat) => (
-                      <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+                      <option key={cat.id} value={cat.id}>
+                        {cat.nombre}
+                      </option>
                     ))}
                   </select>
                 </div>
 
                 <div className="col-span-2">
-                  <label className="text-sm text-gray-700">URL de la imagen principal</label>
+                  <label className="text-sm text-gray-700">
+                    Imagen principal (sube desde tu PC)
+                  </label>
                   <input
-                    type="text"
-                    value={formulario.imagen_principal}
-                    onChange={(e) => handleChange("imagen_principal", e.target.value)}
-                    placeholder="https://example.com/imagen.jpg"
-                    className="w-full border border-gray-300 rounded px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-[#0A2540]"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          const base64 = reader.result?.toString();
+                          if (base64) {
+                            handleChange("imagen_principal", base64);
+                          }
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded px-4 py-2 mt-1 bg-white focus:outline-none focus:ring-2 focus:ring-[#0A2540]"
                   />
                 </div>
 
