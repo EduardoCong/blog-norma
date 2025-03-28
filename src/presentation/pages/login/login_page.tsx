@@ -52,6 +52,11 @@ function LoginPage() {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/home");
+    }
+
     if (!shouldLogin) return;
 
     const loginUser = async () => {
@@ -77,6 +82,8 @@ function LoginPage() {
         localStorage.setItem("token", data.usuario.token);
         localStorage.setItem("token_expires", data.usuario.token_expires);
         localStorage.setItem("id_autor", data.usuario.id_autor);
+        localStorage.setItem("nombre_usuario", data.usuario.nombre_usuario);
+        localStorage.setItem("correo", data.usuario.correo);
 
         console.log("Usuario logueado:", data.usuario.id_autor);
 
@@ -95,6 +102,7 @@ function LoginPage() {
           title: "Error",
           text: (error as Error).message || "Algo salió mal",
         });
+        navigate("*");
       } finally {
         setShouldLogin(false);
       }

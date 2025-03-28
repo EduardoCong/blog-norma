@@ -35,11 +35,12 @@ const ArticuloDetallePage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     const fetchArticulo = async () => {
       try {
         const res = await fetch(`http://localhost:4000/api2/articulos/${id}`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 

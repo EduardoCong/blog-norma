@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -62,13 +62,7 @@ const ScienceUTMHomepage = () => {
       //   headers: { Authorization: `Bearer ${token}` },
       // });
 
-      localStorage.removeItem("nombre_usuario");
-      localStorage.removeItem("correo");
-      localStorage.removeItem("contrasena");
-      localStorage.removeItem("token");
-      localStorage.removeItem("rol");
-      localStorage.removeItem("token_expires");
-      localStorage.removeItem("id_autor");
+      localStorage.clear();
 
       navigate("/");
     } catch (error) {
@@ -103,24 +97,35 @@ const ScienceUTMHomepage = () => {
         <div className="px-4 py-2 flex justify-between items-center">
           <div className="flex justify-between items-center gap-6">
             <div className="flex items-center gap-2">
-              <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSy8Zl8c4c8H1mmsKu2n5EFcrBd-cn8003_g&s"
-                alt="logo"
-                className="h-10 w-10"
-              />
+              <NavLink to="/home" className={"hover:cursor-pointer"}>
+                <img
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSy8Zl8c4c8H1mmsKu2n5EFcrBd-cn8003_g&s"
+                  alt="logo"
+                  className="h-10 w-10"
+                />
+              </NavLink>
               <div className="text-lg">ScienceUTM</div>
             </div>
             <div className="space-x-10 flex items-center">
               <NavLink to="/home" className="hover:text-blue-300 font-[400]">
                 Inicio
               </NavLink>
-              <NavLink to="/noticias" className="hover:text-blue-300 font-[400]">
+              <NavLink
+                to="/noticias"
+                className="hover:text-blue-300 font-[400]"
+              >
                 Noticias
               </NavLink>
-              <NavLink to="/descubrimientos" className="hover:text-blue-300 font-[400]">
+              <NavLink
+                to="/descubrimientos"
+                className="hover:text-blue-300 font-[400]"
+              >
                 Descubrimientos
               </NavLink>
-              <NavLink to="/expertos" className="hover:text-blue-300 font-[400]">
+              <NavLink
+                to="/expertos"
+                className="hover:text-blue-300 font-[400]"
+              >
                 Expertos
               </NavLink>
             </div>
@@ -141,28 +146,36 @@ const ScienceUTMHomepage = () => {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="w-9 h-9 flex items-center justify-center bg-white text-[#0A2540] border border-gray-200 rounded-full shadow-sm hover:bg-blue-50 hover:text-blue-800 transition"
+                className="w-9 h-9 flex items-center justify-center bg-white text-[#0A2540] border border-gray-200 rounded-full shadow-sm hover:bg-blue-50 hover:text-blue-800 transition hover:cursor-pointer"
               >
                 <FontAwesomeIcon icon={faUser} className="text-[16px]" />
               </button>
 
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg text-sm z-50">
-                  <NavLink
-                    to="/profile"
-                    onClick={() => setDropdownOpen(false)}
-                    className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
+              <AnimatePresence>
+                {dropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-40 bg-white shadow-lg text-sm z-50 rounded-md overflow-hidden"
                   >
-                    Perfil
-                  </NavLink>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
-                  >
-                    Cerrar sesión
-                  </button>
-                </div>
-              )}
+                    <NavLink
+                      to="/profile"
+                      onClick={() => setDropdownOpen(false)}
+                      className="block px-4 py-2 text-gray-800 hover:bg-[#0a192f] rounded-md hover:text-white"
+                    >
+                      Perfil
+                    </NavLink>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 hover:bg-[#0a192f] text-red-600 rounded-md hover:text-white"
+                    >
+                      Cerrar sesión
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
@@ -229,10 +242,18 @@ const ScienceUTMHomepage = () => {
             © Todos los derechos reservados. Blog académico ScienceUTM.
           </p>
           <div className="flex space-x-3 text-xl">
-            <NavLink to="#"><FontAwesomeIcon icon={faFacebook} /></NavLink>
-            <NavLink to="#"><FontAwesomeIcon icon={faTwitter} /></NavLink>
-            <NavLink to="#"><FontAwesomeIcon icon={faYoutube} /></NavLink>
-            <NavLink to="#"><FontAwesomeIcon icon={faGithub} /></NavLink>
+            <NavLink to="#">
+              <FontAwesomeIcon icon={faFacebook} />
+            </NavLink>
+            <NavLink to="#">
+              <FontAwesomeIcon icon={faTwitter} />
+            </NavLink>
+            <NavLink to="#">
+              <FontAwesomeIcon icon={faYoutube} />
+            </NavLink>
+            <NavLink to="#">
+              <FontAwesomeIcon icon={faGithub} />
+            </NavLink>
           </div>
         </div>
       </footer>
