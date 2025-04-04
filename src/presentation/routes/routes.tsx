@@ -5,7 +5,6 @@ import RegisterPage from "../pages/registrer/register_page";
 import ProtectedRoute from "../pages/protected_route/protected_route";
 import PerfilPage from "../pages/profile/profile_page";
 import NotFoundPage from "../pages/notfound/notfound_page";
-import CrearArticulo from "../pages/uploads/upload_page";
 import DetailsPage from "../pages/details/details_page";
 import ProtectedExpires from "../pages/protected_route/protected_token_expires";
 
@@ -44,16 +43,6 @@ function App() {
             <ProtectedExpires>
               <ProtectedRoute>
                 <PerfilPage />
-              </ProtectedRoute>
-            </ProtectedExpires>
-          }
-        />
-        <Route
-          path="/crear-articulo"
-          element={
-            <ProtectedExpires>
-              <ProtectedRoute>
-                <CrearArticulo />
               </ProtectedRoute>
             </ProtectedExpires>
           }

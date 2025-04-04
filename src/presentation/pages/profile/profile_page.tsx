@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import Footer from "../../components/footer";
 import Header from "../../components/header";
 import CrearArticuloModal from "../uploads/modal_upload";
+import { FaSpinner } from "react-icons/fa";
 
 interface PerfilData {
   nombre_usuario: string;
@@ -130,7 +131,10 @@ const PerfilPage = () => {
 
   if (!perfil)
     return (
-      <p className="text-center mt-10 text-gray-500">Cargando perfil...</p>
+      <div className="flex items-center justify-center gap-2 text-gray-500 mt-10">
+        <FaSpinner className="animate-spin text-xl" />
+        <span>Cargando perfil...</span>
+      </div>
     );
 
   return (
@@ -169,7 +173,7 @@ const PerfilPage = () => {
             onClick={() => setMostrarModal(true)}
             className="group flex flex-col items-center transition-transform hover:scale-105 duration-300"
           >
-            <div className="w-40 h-40 flex items-center justify-center bg-[#0A2540] text-white rounded-full shadow-md">
+            <div className="w-40 h-40 flex items-center justify-center bg-[#0A2540] text-white rounded-full shadow-md hover:cursor-pointer">
               <FontAwesomeIcon icon={faUpload} className="text-[64px]" />
             </div>
             <span className="mt-2 text-sm text-gray-700 group-hover:text-[#0A2540] transition-colors duration-300">
@@ -177,11 +181,9 @@ const PerfilPage = () => {
             </span>
           </button>
 
-          {
-            mostrarModal && (
-              <CrearArticuloModal onClose={() => setMostrarModal(false)} />
-            )
-          }
+          {mostrarModal && (
+            <CrearArticuloModal onClose={() => setMostrarModal(false)} />
+          )}
         </div>
 
         <div className="space-y-6">
