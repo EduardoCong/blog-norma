@@ -42,7 +42,7 @@ function Header(props: HeaderProps) {
         <div className="px-4 py-2 flex justify-between items-center">
           <div className="flex items-center gap-4">
             {showBackButton ? (
-              <div className="flex items-center gap-2 flex-col md:flex-row">
+              <div className="flex items-center justify-between gap-3">
                 <button
                   onClick={onBackButtonClick}
                   className="text-white hover:cursor-pointer rounded-[12px] p-2 hover:bg-white hover:text-[#0A2540] transition"
@@ -52,7 +52,6 @@ function Header(props: HeaderProps) {
 
                 <img src={logoUrl} alt="logo" className="h-10 w-10" />
                 <div className="text-lg">{title}</div>
-
               </div>
             ) : (
               <>
