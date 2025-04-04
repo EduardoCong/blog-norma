@@ -119,7 +119,7 @@ const CrearArticulo = () => {
           ></div>
           <div className="pt-32 pb-10 px-8">
             <div className="bg-white rounded-xl p-6 shadow-md">
-              <h2 className="text-2xl font-bold text-center mb-6 text-[#0A2540]">
+              <h2 className="text-2xl text-center mb-6 text-[#0A2540]">
                 Nuevo Artículo
               </h2>
 
@@ -216,7 +216,7 @@ const CrearArticulo = () => {
                 whileTap={{ scale: 0.95 }}
                 whileHover={{ scale: 1.03 }}
                 onClick={handleSubmit}
-                className="mt-6 w-full bg-[#0A2540] text-white py-2 rounded-md text-lg font-semibold hover:bg-red-600 transition"
+                className="mt-6 w-full bg-[#0A2540] text-white py-2 rounded-md text-lg hover:bg-[#0A2540] transition"
               >
                 Publicar Artículo
               </motion.button>

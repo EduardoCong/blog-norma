@@ -240,7 +240,7 @@ const PerfilPage = () => {
                   onClick={() => setShowPassword(true)}
                   className="text-[0a192f] hover:text-blue-800"
                 >
-                  <FontAwesomeIcon icon={faPen} />
+                  <FontAwesomeIcon icon={faPen} className="hover: cursor-pointer"/>
                 </button>
               </div>
             )}
@@ -260,13 +260,13 @@ const PerfilPage = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={actualizarBiografia}
-                    className="h-9 w-20 bg-black rounded-[12px] text-[12px] text-white hover:bg-green-800"
+                    className="h-9 w-20 bg-black rounded-[12px] hover:cursor-pointer text-[12px] text-white hover:bg-green-800"
                   >
                     Guardar
                   </button>
                   <button
                     onClick={() => setEditandoBio(false)}
-                    className="h-9 w-20 bg-black rounded-[12px] text-[12px] text-white hover:bg-red-800"
+                    className="h-9 w-20 bg-black rounded-[12px] hover:cursor-pointer text-[12px] text-white hover:bg-red-800"
                   >
                     Cancelar
                   </button>
@@ -284,7 +284,7 @@ const PerfilPage = () => {
                   }}
                   className="text-[0a192f] hover:text-blue-800"
                 >
-                  <FontAwesomeIcon icon={perfil.biografia ? faPen : faPlus} />
+                  <FontAwesomeIcon icon={perfil.biografia ? faPen : faPlus} className="hover:cursor-pointer"/>
                 </button>
               </div>
             )}

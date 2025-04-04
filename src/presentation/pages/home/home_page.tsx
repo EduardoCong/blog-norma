@@ -1,15 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch, faUser } from "@fortawesome/free-solid-svg-icons";
-import {
-  faTwitter,
-  faFacebook,
-  faGithub,
-  faYoutube,
-} from "@fortawesome/free-brands-svg-icons";
 import "../../../index.css";
+import Header from "../../components/header";
+import Footer from "../../components/footer";
 
 const ScienceUTMHomepage = () => {
   interface Article {
@@ -24,8 +18,9 @@ const ScienceUTMHomepage = () => {
   const [filteredNews, setFilteredNews] = useState<Article[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const [dropdownKey, setDropdownKey] = useState(0);
   const navigate = useNavigate();
 
   const getImageSrc = (url?: string) => {
@@ -39,6 +34,32 @@ const ScienceUTMHomepage = () => {
     localStorage.clear();
     navigate("/");
   };
+
+  const toggleDropdown = () => {
+    if (!dropdownOpen) {
+      setDropdownKey((prev) => prev + 1);
+    }
+    setDropdownOpen((prev) => !prev);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+
+    if (dropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   useEffect(() => {
     const fetchArticulos = async () => {
@@ -77,21 +98,6 @@ const ScienceUTMHomepage = () => {
     }, 400);
   }, [searchTerm, news]);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !(dropdownRef.current as HTMLElement).contains(event.target as Node)
-      ) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   return (
     <motion.div
       className="min-h-screen bg-white flex flex-col font-torres"
@@ -100,71 +106,40 @@ const ScienceUTMHomepage = () => {
       exit={{ y: 100, opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <nav className="bg-[#0A2540] text-white shadow-md p-2">
-        <div className="px-4 py-2 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <NavLink to="/home">
-              <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSy8Zl8c4c8H1mmsKu2n5EFcrBd-cn8003_g&s"
-                alt="logo"
-                className="h-10 w-10"
-              />
+      <Header
+        showSearch
+        searchTerm={searchTerm}
+        onSearchChange={(val) => setSearchTerm(val)}
+        showUser
+        onUserClick={toggleDropdown}
+      ></Header>
+
+      <AnimatePresence>
+        {dropdownOpen && (
+          <motion.div
+            key={dropdownKey}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-15 right-6 w-40 bg-white shadow-lg text-sm z-50 rounded-md overflow-hidden"
+          >
+            <NavLink
+              to="/profile"
+              onClick={() => setDropdownOpen(false)}
+              className="block px-4 py-2 text-gray-800 hover:bg-[#0a192f] hover:text-white hover:cursor-pointer"
+            >
+              Perfil
             </NavLink>
-            <div className="text-lg">ScienceUTM</div>
-          </div>
-
-          <div className="flex items-center gap-6">
-            <div className="relative">
-              <FontAwesomeIcon
-                icon={faSearch}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-              />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar artículo..."
-                className="w-60 pl-10 pr-4 py-2 rounded-[13px] bg-gray-100 text-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="w-9 h-9 flex items-center justify-center bg-white text-[#0A2540] border border-gray-200 rounded-full shadow-sm hover:bg-blue-50 hover:text-blue-800 transition hover:cursor-pointer"
-              >
-                <FontAwesomeIcon icon={faUser} />
-              </button>
-
-              <AnimatePresence>
-                {dropdownOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-2 w-40 bg-white shadow-lg text-sm z-50 rounded-md overflow-hidden"
-                  >
-                    <NavLink
-                      to="/profile"
-                      onClick={() => setDropdownOpen(false)}
-                      className="block px-4 py-2 text-gray-800 hover:bg-[#0a192f] hover:text-white"
-                    >
-                      Perfil
-                    </NavLink>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 hover:bg-[#0a192f] text-red-600 hover:text-white"
-                    >
-                      Cerrar sesión
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </div>
-      </nav>
+            <button
+              onClick={handleLogout}
+              className="w-full text-left px-4 py-2 hover:bg-[#0a192f] text-red-600 hover:text-white hover:cursor-pointer"
+            >
+              Cerrar sesión
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main className="container mx-auto max-w-6xl px-10 py-10 flex-2">
         <h2 className="text-3xl mb-2 font-jakarta">ScienceUTM</h2>
@@ -223,27 +198,7 @@ const ScienceUTMHomepage = () => {
         )}
       </main>
 
-      <footer className="bg-[#0A2540] text-white text-center py-6 mt-10">
-        <div className="flex flex-col md:flex-row justify-between items-center px-4">
-          <p className="text-sm mb-2 md:mb-0">
-            © Todos los derechos reservados. Blog académico ScienceUTM.
-          </p>
-          <div className="flex space-x-3 text-xl">
-            <NavLink to="#">
-              <FontAwesomeIcon icon={faFacebook} />
-            </NavLink>
-            <NavLink to="#">
-              <FontAwesomeIcon icon={faTwitter} />
-            </NavLink>
-            <NavLink to="#">
-              <FontAwesomeIcon icon={faYoutube} />
-            </NavLink>
-            <NavLink to="#">
-              <FontAwesomeIcon icon={faGithub} />
-            </NavLink>
-          </div>
-        </div>
-      </footer>
+      <Footer></Footer>
     </motion.div>
   );
 };
