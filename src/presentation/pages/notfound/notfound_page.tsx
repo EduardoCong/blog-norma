@@ -1,13 +1,9 @@
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faFacebook,
-  faGithub,
-  faTwitter,
-  faYoutube,
-} from "@fortawesome/free-brands-svg-icons";
 import { faUserAstronaut } from "@fortawesome/free-solid-svg-icons";
+import Header from "../../components/header";
+import Footer from "../../components/footer";
 
 function NotFoundPage() {
   return (
@@ -17,18 +13,7 @@ function NotFoundPage() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <nav className="bg-[#0A2540] text-white shadow-md p-2">
-        <div className="px-4 py-2 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <img
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSy8Zl8c4c8H1mmsKu2n5EFcrBd-cn8003_g&s"
-              alt="logo"
-              className="h-10 w-10"
-            />
-            <div className="text-lg font-bold">ScienceUTM</div>
-          </div>
-        </div>
-      </nav>
+      <Header></Header>
 
       <main className="flex-grow flex flex-col items-center justify-center text-center px-4">
         <motion.div
@@ -45,8 +30,8 @@ function NotFoundPage() {
           No pudimos encontrar la página que buscas.
         </p>
         <p className="text-sm text-gray-500 mb-6">
-          Puede que haya expirado o que haya un error en la URL.
-          Intenta volver al inicio para encontrar lo que buscas.
+          Puede que haya expirado o que haya un error en la URL. Intenta volver
+          al inicio para encontrar lo que buscas.
         </p>
         <NavLink
           to="/home"
@@ -56,19 +41,7 @@ function NotFoundPage() {
         </NavLink>
       </main>
 
-      <footer className="bg-[#0A2540] text-white text-center py-6">
-        <div className="flex flex-col md:flex-row justify-between items-center px-4">
-          <p className="text-sm mb-2 md:mb-0">
-            © Todos los derechos reservados. Blog académico ScienceUTM.
-          </p>
-          <div className="flex space-x-3 text-xl">
-            <NavLink to="#"><FontAwesomeIcon icon={faFacebook} /></NavLink>
-            <NavLink to="#"><FontAwesomeIcon icon={faTwitter} /></NavLink>
-            <NavLink to="#"><FontAwesomeIcon icon={faYoutube} /></NavLink>
-            <NavLink to="#"><FontAwesomeIcon icon={faGithub} /></NavLink>
-          </div>
-        </div>
-      </footer>
+      <Footer></Footer>
     </motion.div>
   );
 }

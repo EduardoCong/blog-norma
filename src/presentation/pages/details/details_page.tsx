@@ -1,17 +1,9 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { NavLink } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
-import {
-  faTwitter,
-  faFacebook,
-  faGithub,
-  faYoutube,
-} from "@fortawesome/free-brands-svg-icons";
-import '../../../index.css';
+import Footer from "../../components/footer";
+import Header from "../../components/header";
 
 const ArticuloDetallePage = () => {
   interface Article {
@@ -125,24 +117,7 @@ const ArticuloDetallePage = () => {
       exit={{ y: 100, opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <nav className="bg-[#0A2540] text-white shadow-md">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <NavLink
-            to="/home"
-            className="text-white hover:text-blue-300 transition"
-          >
-            <FontAwesomeIcon icon={faArrowLeft} className="mr-2" /> Volver al inicio
-          </NavLink>
-          <div className="flex justify-between items-center gap-6">
-            <img
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSy8Zl8c4c8H1mmsKu2n5EFcrBd-cn8003_g&s"
-              alt=""
-              className="h-10 w-10"
-            />
-            <div className="text-lg">ScienceUTM</div>
-          </div>
-        </div>
-      </nav>
+      <Header></Header>
 
       <main className="px-6 py-10 max-w-[800px] mx-auto flex-1">
         {loading ? (
@@ -164,7 +139,7 @@ const ArticuloDetallePage = () => {
             </p>
           </article>
         ) : (
-          <p className="text-center text-red-500">Artículo no encontrado.</p>
+          <Navigate to="/notfound"/>
         )}
 
         <section className="mt-12">
@@ -207,27 +182,7 @@ const ArticuloDetallePage = () => {
         </section>
       </main>
 
-      <footer className="bg-[#0A2540] text-white text-center py-6">
-        <div className="flex flex-col md:flex-row justify-between items-center px-4">
-          <p className="text-sm mb-2 md:mb-0">
-            © Todos los derechos reservados. Blog académico ScienceUTM.
-          </p>
-          <div className="flex space-x-3 text-xl">
-            <NavLink to="#">
-              <FontAwesomeIcon icon={faFacebook} />
-            </NavLink>
-            <NavLink to="#">
-              <FontAwesomeIcon icon={faTwitter} />
-            </NavLink>
-            <NavLink to="#">
-              <FontAwesomeIcon icon={faYoutube} />
-            </NavLink>
-            <NavLink to="#">
-              <FontAwesomeIcon icon={faGithub} />
-            </NavLink>
-          </div>
-        </div>
-      </footer>
+      <Footer></Footer>
     </motion.div>
   );
 };

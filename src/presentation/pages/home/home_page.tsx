@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import "../../../index.css";
 import Header from "../../components/header";
 import Footer from "../../components/footer";
 
