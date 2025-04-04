@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
 import Footer from "../../components/footer";
@@ -19,6 +19,8 @@ const ArticuloDetallePage = () => {
     contenido: string;
     fecha_comentario: string;
   }
+
+  const navigate = useNavigate();
 
   const [articulo, setArticulo] = useState<Article | null>(null);
   const [comentarios, setComentarios] = useState<Comentario[]>([]);
@@ -117,7 +119,7 @@ const ArticuloDetallePage = () => {
       exit={{ y: 100, opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <Header></Header>
+      <Header showBackButton onBackButtonClick={()=>navigate(-1)}></Header>
 
       <main className="px-6 py-10 max-w-[800px] mx-auto flex-1">
         {loading ? (

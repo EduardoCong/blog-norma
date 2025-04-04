@@ -5,7 +5,6 @@ import {
   faUser,
   faArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
-import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   title?: string;
@@ -24,7 +23,6 @@ interface HeaderProps {
 }
 
 function Header(props: HeaderProps) {
-  const navigate = useNavigate();
   const {
     title = "ScienceUTM",
     logoUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSy8Zl8c4c8H1mmsKu2n5EFcrBd-cn8003_g&s",
@@ -38,14 +36,6 @@ function Header(props: HeaderProps) {
     onBackButtonClick,
   } = props;
 
-  const handleBackButtonClick = () => {
-    if (onBackButtonClick) {
-      onBackButtonClick();
-    } else {
-      navigate(-1);
-    }
-  };
-
   return (
     <header className="font-jakarta">
       <nav className="bg-[#0A2540] text-white shadow-md p-2">
@@ -54,8 +44,8 @@ function Header(props: HeaderProps) {
             {showBackButton ? (
               <div className="flex items-center gap-2 flex-col md:flex-row">
                 <button
-                  onClick={handleBackButtonClick}
-                  className="text-white hover:text-gray-300"
+                  onClick={onBackButtonClick}
+                  className="text-white hover:cursor-pointer rounded-[12px] p-2 hover:bg-white hover:text-[#0A2540] transition"
                 >
                   <FontAwesomeIcon icon={faArrowLeft} /> Volver
                 </button>
