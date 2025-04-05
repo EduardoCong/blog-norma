@@ -90,8 +90,8 @@ function LoginPage() {
         Swal.fire({
           icon: "success",
           title: "¡Inicio de sesión exitoso!",
-          text: data.message || "Bienvenido de nuevo.",
-          confirmButtonText: "Ir al Home",
+          timer: 900,
+          showConfirmButton: true,          
         }).then(() => {
           navigate("/home");
         });

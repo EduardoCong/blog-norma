@@ -79,7 +79,9 @@ function RegisterPage() {
 
   useEffect(() => {
     if (!shouldRegister) return;
-
+  
+    const { name, email, password } = formData;
+  
     const registerUser = async () => {
       try {
         const response = await fetch("http://localhost:4000/api/register", {
@@ -88,30 +90,26 @@ function RegisterPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            nombre_usuario: formData.name,
-            correo: formData.email,
-            contraseña: formData.password,
+            nombre_usuario: name,
+            correo: email,
+            contraseña: password,
           }),
         });
-
+  
         const data = await response.json();
-
+  
         if (!response.ok) {
           throw new Error(data.error || "Error en el registro");
         }
-
-        localStorage.setItem("nombre_usuario", formData.name);
-        localStorage.setItem("correo", formData.email);
-        localStorage.setItem("contrasena", formData.password);
-        localStorage.setItem("token", data.token);
-
+  
         Swal.fire({
           icon: "success",
           title: "¡Inicio de sesión exitoso!",
           text: data.message || "Bienvenido de nuevo.",
-          confirmButtonText: "Ir al Home",
+          timer: 900,
+          showConfirmButton: false,
         }).then(() => {
-          navigate("/home");
+          navigate("/");
         });
       } catch (error) {
         console.error("Error de conexión:", error);
@@ -124,9 +122,10 @@ function RegisterPage() {
         setShouldRegister(false);
       }
     };
-
+  
     registerUser();
-  }, [formData.email, formData.name, formData.password, shouldRegister, navigate]);
+  }, [shouldRegister, navigate, formData]);
+  
 
   return (
     <motion.div
@@ -136,7 +135,6 @@ function RegisterPage() {
       exit={{ opacity: 0, x: -50 }}
       transition={{ duration: 0.5 }}
     >
-      {/* NAVBAR */}
       <nav className="flex items-center justify-between p-4">
         <div className="flex items-center space-x-2 hover:cursor-pointer">
           <img
@@ -172,7 +170,6 @@ function RegisterPage() {
       </nav>
       <div className="div-line"></div>
 
-      {/* FORMULARIO */}
       <div className="div-container-form flex items-center justify-center min-h-screen mt-[-40px]">
         <div className="div-form p-8 w-full max-w-md">
           <h1 className="text-[20px] text-center mb-4">

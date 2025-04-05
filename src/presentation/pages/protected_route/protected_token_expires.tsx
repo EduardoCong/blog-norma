@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
@@ -8,6 +8,7 @@ interface ProtectedRouteProps {
 
 const ProtectedExpires = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
+  const [validating, setValidating] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -31,8 +32,12 @@ const ProtectedExpires = ({ children }: ProtectedRouteProps) => {
         localStorage.clear();
         navigate("/");
       });
+    } else{
+      setValidating(false);
     }
   }, [navigate]);
+
+  if (validating) return null;
 
   return <>{children}</>;
 };

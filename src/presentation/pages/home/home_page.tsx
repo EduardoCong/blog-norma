@@ -61,6 +61,10 @@ const ScienceUTMHomepage = () => {
   }, [dropdownOpen]);
 
   useEffect(() => {
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
     const fetchArticulos = async () => {
       try {
         const response = await fetch("http://localhost:4000/api2/articulos", {
