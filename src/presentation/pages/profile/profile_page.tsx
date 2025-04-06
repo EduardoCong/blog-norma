@@ -9,18 +9,11 @@ import Footer from "../../components/footer";
 import Header from "../../components/header";
 import CrearArticuloModal from "../uploads/modal_upload";
 import { FaSpinner } from "react-icons/fa";
-
-interface PerfilData {
-  nombre_usuario: string;
-  email: string;
-  foto?: string;
-  biografia?: string;
-  password?: string;
-}
+import { User } from "../../../domain/models/user";
 
 const PerfilPage = () => {
   const navigate = useNavigate();
-  const [perfil, setPerfil] = useState<PerfilData | null>(null);
+  const [perfil, setPerfil] = useState<User | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [editandoBio, setEditandoBio] = useState(false);

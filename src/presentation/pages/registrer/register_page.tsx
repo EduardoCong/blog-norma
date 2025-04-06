@@ -62,7 +62,7 @@ function RegisterPage() {
       transition={{ duration: 0.5 }}
     >
       <nav className="flex items-center justify-between p-4">
-        <div className="flex items-center space-x-2 hover:cursor-pointer">
+        <div className="flex items-center space-x-2">
           <img
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSy8Zl8c4c8H1mmsKu2n5EFcrBd-cn8003_g&s"
             className="w-10 h-10"
@@ -107,7 +107,7 @@ function RegisterPage() {
                 type="text"
                 id="username"
                 {...register("user")}
-                className="input-form w-full px-4 py-2 rounded-[14px] focus:outline-none focus:ring-1 input-form-style"
+                className="input-form w-full px-4 py-2 rounded-[12px] focus:outline-none focus:ring-1 input-form-style"
                 placeholder="Username"
               />
               {errors.user && (
@@ -120,7 +120,7 @@ function RegisterPage() {
                 type="email"
                 id="email"
                 {...register("email")}
-                className="input-form w-full px-4 py-2 rounded-[14px] focus:outline-none focus:ring-1 input-form-style"
+                className="input-form w-full px-4 py-2 rounded-[12px] focus:outline-none focus:ring-1 input-form-style"
                 placeholder="Email"
               />
               {errors.email && (
@@ -133,7 +133,7 @@ function RegisterPage() {
                 type="password"
                 id="password"
                 {...register("password")}
-                className="input-form w-full px-4 py-2 rounded-[14px] focus:outline-none focus:ring-1 input-form-style"
+                className="input-form w-full px-4 py-2 rounded-[12px] focus:outline-none focus:ring-1 input-form-style"
                 placeholder="Contraseña"
               />
               {errors.password && (

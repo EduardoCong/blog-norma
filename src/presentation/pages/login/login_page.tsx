@@ -1,17 +1,14 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
-import Swal from "sweetalert2";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import {
   UserLoginForm,
   userSchema,
 } from "../../zodValidartion/login_validation";
-import axios from "axios";
-import { getErrorMessage } from "../../../utils/errorHandler";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useLoginController } from "../../controllers/userLoginController";
 
 function LoginPage() {
-  const navigate = useNavigate();
 
   const {
     register,
@@ -26,38 +23,7 @@ function LoginPage() {
     },
   });
 
-  const onSubmit: SubmitHandler<UserLoginForm> = async (data) => {
-    try {
-      const response = await axios.post("http://localhost:4000/api/login", {
-        correo: data.email,
-        contraseña: data.password,
-      });
-
-      const usuario = response.data.usuario;
-
-      localStorage.setItem("rol", usuario.id_autor);
-      localStorage.setItem("token", usuario.token);
-      localStorage.setItem("token_expires", usuario.token_expires);
-      localStorage.setItem("id_autor", usuario.id_autor);
-      localStorage.setItem("nombre_usuario", usuario.nombre_usuario);
-      localStorage.setItem("correo", usuario.correo);
-
-      Swal.fire({
-        icon: "success",
-        title: "¡Inicio de sesión exitoso!",
-        timer: 900,
-        showConfirmButton: false,
-      }).then(() => {
-        navigate("/home");
-      });
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: getErrorMessage(error),
-      });
-    }
-  };
+  const { onSubmit } = useLoginController();
 
   return (
     <motion.div
@@ -68,7 +34,7 @@ function LoginPage() {
       transition={{ duration: 0.5 }}
     >
       <nav className="flex items-center justify-between p-4">
-        <div className="flex items-center space-x-2 hover:cursor-pointer">
+        <div className="flex items-center space-x-2">
           <img
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSy8Zl8c4c8H1mmsKu2n5EFcrBd-cn8003_g&s"
             className="w-10 h-10"
@@ -115,7 +81,7 @@ function LoginPage() {
                 type="email"
                 id="email"
                 {...register("email")}
-                className="input-form w-full px-4 py-2 rounded-[14px] focus:outline-none focus:ring-1 input-form-style"
+                className="input-form w-full px-4 py-2 rounded-[12px] focus:outline-none focus:ring-1 input-form-style"
                 placeholder="you@example.com"
               />
               {errors.email && (
@@ -132,7 +98,7 @@ function LoginPage() {
                 type="password"
                 id="password"
                 {...register("password")}
-                className="input-form w-full px-4 py-2 rounded-[14px] focus:outline-none focus:ring-1 input-form-style"
+                className="input-form w-full px-4 py-2 rounded-[12px] focus:outline-none focus:ring-1 input-form-style"
                 placeholder="**********"
               />
               {errors.password && (
