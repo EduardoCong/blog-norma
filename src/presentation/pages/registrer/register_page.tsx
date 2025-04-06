@@ -1,131 +1,57 @@
-import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { z } from "zod";
 import Swal from "sweetalert2";
-
-const registerSchema = z.object({
-  name: z.string().nonempty({ message: "El nombre es requerido" }),
-  email: z
-    .string()
-    .nonempty({ message: "El email es requerido" })
-    .email({ message: "Debe ser un email válido" }),
-  password: z
-    .string()
-    .min(8, { message: "La contraseña debe tener al menos 8 caracteres" }),
-});
-
-const nameSchema = registerSchema.pick({ name: true });
-const emailSchema = registerSchema.pick({ email: true });
-const passwordSchema = registerSchema.pick({ password: true });
-
-interface FormErrors {
-  name?: string;
-  email?: string;
-  password?: string;
-}
+import {
+  UserRegisterForm,
+  userRegisterSchema,
+} from "../../zodValidartion/register_validation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { getErrorMessage } from "../../../utils/errorHandler";
+import axios from "axios";
 
 function RegisterPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [shouldRegister, setShouldRegister] = useState(false);
-
   const navigate = useNavigate();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(userRegisterSchema),
+    mode: "onBlur",
+    defaultValues: {
+      user: "",
+      email: "",
+      password: "",
+    },
+  });
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    let schemaToUse;
-    if (name === "name") schemaToUse = nameSchema;
-    else if (name === "email") schemaToUse = emailSchema;
-    else if (name === "password") schemaToUse = passwordSchema;
-
-    if (schemaToUse) {
-      const result = schemaToUse.safeParse({ [name]: value });
-      if (!result.success) {
-        const message =
-          result.error.formErrors.fieldErrors[
-            name as keyof typeof result.error.formErrors.fieldErrors
-          ]?.[0] || "Error en el campo";
-        setErrors((prev) => ({ ...prev, [name]: message }));
-      } else {
-        setErrors((prev) => ({ ...prev, [name]: undefined }));
-      }
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = registerSchema.safeParse(formData);
-    if (!result.success) {
-      const fieldErrors = result.error.formErrors.fieldErrors;
-      setErrors({
-        name: fieldErrors.name ? fieldErrors.name[0] : undefined,
-        email: fieldErrors.email ? fieldErrors.email[0] : undefined,
-        password: fieldErrors.password ? fieldErrors.password[0] : undefined,
+  const onSubmit: SubmitHandler<UserRegisterForm> = async (data) => {
+    try {
+      await axios.post("http://localhost:4000/api/register", {
+        nombre_usuario: data.user,
+        correo: data.email,
+        contraseña: data.password,
       });
-      return;
-    }
-    setShouldRegister(true);
-  };
 
-  useEffect(() => {
-    if (!shouldRegister) return;
-  
-    const { name, email, password } = formData;
-  
-    const registerUser = async () => {
-      try {
-        const response = await fetch("http://localhost:4000/api/register", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            nombre_usuario: name,
-            correo: email,
-            contraseña: password,
-          }),
-        });
-  
-        const data = await response.json();
-  
-        if (!response.ok) {
-          throw new Error(data.error || "Error en el registro");
-        }
-  
-        Swal.fire({
-          icon: "success",
-          title: "¡Inicio de sesión exitoso!",
-          text: data.message || "Bienvenido de nuevo.",
-          timer: 900,
-          showConfirmButton: false,
-        }).then(() => {
-          navigate("/");
-        });
-      } catch (error) {
-        console.error("Error de conexión:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: "Error al registrar. Inténtalo de nuevo.",
-        });
-      } finally {
-        setShouldRegister(false);
-      }
-    };
-  
-    registerUser();
-  }, [shouldRegister, navigate, formData]);
-  
+      Swal.fire({
+        icon: "success",
+        title: "¡Registro exitoso!",
+        text: "Bienvenido a ScienceUTM.",
+        timer: 900,
+        showConfirmButton: false,
+      }).then(() => {
+        navigate("/");
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: getErrorMessage(error),
+      });
+    }
+  };
 
   return (
     <motion.div
@@ -175,20 +101,17 @@ function RegisterPage() {
           <h1 className="text-[20px] text-center mb-4">
             Registrate a ScienceUTM
           </h1>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-4">
               <input
                 type="text"
                 id="username"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
+                {...register("user")}
                 className="input-form w-full px-4 py-2 rounded-[14px] focus:outline-none focus:ring-1 input-form-style"
                 placeholder="Username"
               />
-              {errors.name && (
-                <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+              {errors.user && (
+                <p className="text-red-500 text-xs mt-1">{errors.user.message}</p>
               )}
             </div>
 
@@ -196,15 +119,12 @@ function RegisterPage() {
               <input
                 type="email"
                 id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
+                {...register("email")}
                 className="input-form w-full px-4 py-2 rounded-[14px] focus:outline-none focus:ring-1 input-form-style"
                 placeholder="Email"
               />
               {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
               )}
             </div>
 
@@ -212,15 +132,12 @@ function RegisterPage() {
               <input
                 type="password"
                 id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
+                {...register("password")}
                 className="input-form w-full px-4 py-2 rounded-[14px] focus:outline-none focus:ring-1 input-form-style"
                 placeholder="Contraseña"
               />
               {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
               )}
             </div>
 

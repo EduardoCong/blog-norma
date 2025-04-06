@@ -1,115 +1,63 @@
-import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
-import { userSchema } from "../../zodValidartion/zod_validation";
-
-const emailSchema = userSchema.pick({ email: true });
-const passwordSchema = userSchema.pick({ password: true });
-
-interface FormErrors {
-  email?: string;
-  password?: string;
-}
+import { SubmitHandler, useForm } from "react-hook-form";
+import {
+  UserLoginForm,
+  userSchema,
+} from "../../zodValidartion/login_validation";
+import axios from "axios";
+import { getErrorMessage } from "../../../utils/errorHandler";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 function LoginPage() {
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState<FormErrors>({});
-  const [shouldLogin, setShouldLogin] = useState(false);
-
   const navigate = useNavigate();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<UserLoginForm>({
+    resolver: zodResolver(userSchema),
+    mode: "onBlur",
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const schemaToUse = name === "email" ? emailSchema : passwordSchema;
-    const result = schemaToUse.safeParse({ [name]: value });
-
-    if (!result.success) {
-      const message =
-        result.error.formErrors.fieldErrors[
-          name as keyof typeof result.error.formErrors.fieldErrors
-        ]?.[0] || `Error en ${name}`;
-      setError((prev) => ({ ...prev, [name]: message }));
-    } else {
-      setError((prev) => ({ ...prev, [name]: undefined }));
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit: SubmitHandler<UserLoginForm> = async (data) => {
     try {
-      userSchema.parse(formData);
-      setError({});
-      setShouldLogin(true);
-    } catch (err) {
-      console.error("Error en submit:", err);
+      const response = await axios.post("http://localhost:4000/api/login", {
+        correo: data.email,
+        contraseña: data.password,
+      });
+
+      const usuario = response.data.usuario;
+
+      localStorage.setItem("rol", usuario.id_autor);
+      localStorage.setItem("token", usuario.token);
+      localStorage.setItem("token_expires", usuario.token_expires);
+      localStorage.setItem("id_autor", usuario.id_autor);
+      localStorage.setItem("nombre_usuario", usuario.nombre_usuario);
+      localStorage.setItem("correo", usuario.correo);
+
+      Swal.fire({
+        icon: "success",
+        title: "¡Inicio de sesión exitoso!",
+        timer: 900,
+        showConfirmButton: false,
+      }).then(() => {
+        navigate("/home");
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: getErrorMessage(error),
+      });
     }
   };
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      navigate("/home");
-    }
-
-    if (!shouldLogin) return;
-
-    const loginUser = async () => {
-      try {
-        const response = await fetch("http://localhost:4000/api/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            correo: formData.email,
-            contraseña: formData.password,
-          }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Error al iniciar sesión");
-        }
-
-        localStorage.setItem("rol", data.usuario.id_autor);
-        localStorage.setItem("token", data.usuario.token);
-        localStorage.setItem("token_expires", data.usuario.token_expires);
-        localStorage.setItem("id_autor", data.usuario.id_autor);
-        localStorage.setItem("nombre_usuario", data.usuario.nombre_usuario);
-        localStorage.setItem("correo", data.usuario.correo);
-
-        console.log("Usuario logueado:", data.usuario.id_autor);
-
-        Swal.fire({
-          icon: "success",
-          title: "¡Inicio de sesión exitoso!",
-          timer: 900,
-          showConfirmButton: true,          
-        }).then(() => {
-          navigate("/home");
-        });
-      } catch (error) {
-        console.error("Error al iniciar sesión:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: (error as Error).message || "Algo salió mal",
-        });
-        navigate("*");
-      } finally {
-        setShouldLogin(false);
-      }
-    };
-
-    loginUser();
-  }, [formData.email, formData.password, navigate, shouldLogin]);
 
   return (
     <motion.div
@@ -158,23 +106,22 @@ function LoginPage() {
           <h1 className="text-[20px] text-center mb-4">
             Bienvenido a ScienceUTM!
           </h1>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-4">
               <label htmlFor="email" className="p-1 label-form">
                 Correo
               </label>
               <input
-                type="text"
+                type="email"
                 id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
+                {...register("email")}
                 className="input-form w-full px-4 py-2 rounded-[14px] focus:outline-none focus:ring-1 input-form-style"
                 placeholder="you@example.com"
               />
-              {error.email && (
-                <p className="text-red-500 text-xs mt-1">{error.email}</p>
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.email.message}
+                </p>
               )}
             </div>
             <div className="mb-4">
@@ -184,15 +131,14 @@ function LoginPage() {
               <input
                 type="password"
                 id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
+                {...register("password")}
                 className="input-form w-full px-4 py-2 rounded-[14px] focus:outline-none focus:ring-1 input-form-style"
                 placeholder="**********"
               />
-              {error.password && (
-                <p className="text-red-500 text-xs mt-1">{error.password}</p>
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.password.message}
+                </p>
               )}
             </div>
             <div className="flex justify-center">
