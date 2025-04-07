@@ -1,17 +1,11 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink} from "react-router-dom";
 import { motion } from "framer-motion";
-import Swal from "sweetalert2";
-import {
-  UserRegisterForm,
-  userRegisterSchema,
-} from "../../zodValidartion/register_validation";
+import {userRegisterSchema} from "../../zodValidartion/register_validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { getErrorMessage } from "../../../utils/errorHandler";
-import axios from "axios";
+import { useForm } from "react-hook-form";
+import { useRegisterController } from "../../controllers/userRegisterController";
 
 function RegisterPage() {
-  const navigate = useNavigate();
 
   const {
     register,
@@ -27,31 +21,7 @@ function RegisterPage() {
     },
   });
 
-  const onSubmit: SubmitHandler<UserRegisterForm> = async (data) => {
-    try {
-      await axios.post("http://localhost:4000/api/register", {
-        nombre_usuario: data.user,
-        correo: data.email,
-        contraseña: data.password,
-      });
-
-      Swal.fire({
-        icon: "success",
-        title: "¡Registro exitoso!",
-        text: "Bienvenido a ScienceUTM.",
-        timer: 900,
-        showConfirmButton: false,
-      }).then(() => {
-        navigate("/");
-      });
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: getErrorMessage(error),
-      });
-    }
-  };
+  const {onSubmit} = useRegisterController();
 
   return (
     <motion.div

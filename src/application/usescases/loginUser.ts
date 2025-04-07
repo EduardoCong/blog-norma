@@ -1,4 +1,4 @@
-import { LoginService } from "../../domain/services/authServices";
+import { LoginService } from "../../domain/services/loginServices";
 import { UserLoginForm } from "../../presentation/zodValidartion/login_validation";
 
 export const LoginUser = async (data: UserLoginForm) => {
