@@ -1,7 +1,7 @@
 import toast from "react-hot-toast";
-import { RegisterService } from "../../domain/services/registerServices";
+import { RegisterService } from "../../domain/services/registerService";
 import { getErrorMessage } from "../../utils/errorHandler";
-import { UserRegisterForm } from "../zodValidartion/register_validation";
+import { UserRegisterForm } from "../zodValidation/register_validation";
 import { SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 

@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import {
   UserLoginForm,
   userSchema,
-} from "../../zodValidartion/login_validation";
+} from "../../zodValidation/login_validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLoginController } from "../../controllers/userLoginController";
 

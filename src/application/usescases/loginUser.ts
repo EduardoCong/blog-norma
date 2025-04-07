@@ -1,5 +1,5 @@
-import { LoginService } from "../../domain/services/loginServices";
-import { UserLoginForm } from "../../presentation/zodValidartion/login_validation";
+import { LoginService } from "../../domain/services/loginService";
+import { UserLoginForm } from "../../presentation/zodValidation/login_validation";
 
 export const LoginUser = async (data: UserLoginForm) => {
   const user = await LoginService(data);

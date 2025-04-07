@@ -1,106 +1,23 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState, useRef } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
 import Header from "../../components/header";
 import Footer from "../../components/footer";
+import { useHomepageController } from "../../controllers/homePageController";
+import { NavLink } from "react-router-dom";
+
 
 const ScienceUTMHomepage = () => {
-  interface Article {
-    id_articulo: number;
-    titulo?: string;
-    contenido?: string;
-    imagen_principal?: string;
-    fecha_publicacion?: string;
-  }
 
-  const [news, setNews] = useState<Article[]>([]);
-  const [filteredNews, setFilteredNews] = useState<Article[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const searchTimeout = useRef<NodeJS.Timeout | null>(null);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const [dropdownKey, setDropdownKey] = useState(0);
-  const navigate = useNavigate();
-
-  const getImageSrc = (url?: string) => {
-    if (!url) return "";
-    return url.startsWith("http")
-      ? url
-      : `http://localhost:4000/uploads/${url}`;
-  };
-
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/");
-  };
-
-  const toggleDropdown = () => {
-    if (!dropdownOpen) {
-      setDropdownKey((prev) => prev + 1);
-    }
-    setDropdownOpen((prev) => !prev);
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setDropdownOpen(false);
-      }
-    };
-
-    if (dropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [dropdownOpen]);
-
-  useEffect(() => {
-
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    const fetchArticulos = async () => {
-      try {
-        const response = await fetch("http://localhost:4000/api2/articulos", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          const reversed = data.reverse();
-          setNews(reversed);
-          setFilteredNews(reversed);
-        }
-      } catch (err) {
-        console.error("Error al cargar artículos:", err);
-      }
-    };
-    fetchArticulos();
-  }, []);
-
-  useEffect(() => {
-    if (searchTimeout.current) clearTimeout(searchTimeout.current);
-    searchTimeout.current = setTimeout(() => {
-      if (searchTerm.trim() === "") {
-        setFilteredNews(news);
-      } else {
-        const filtered = news.filter(
-          (a) =>
-            a.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            a.contenido?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setFilteredNews(filtered);
-      }
-    }, 400);
-  }, [searchTerm, news]);
-
+  const {
+    filteredNews,
+    searchTerm,
+    setSearchTerm,
+    dropdownOpen,
+    toggleDropdown,
+    dropdownKey,
+    handleLogout,
+    setDropdownOpen
+  } = useHomepageController();
+  
   return (
     <motion.div
       className="min-h-screen bg-white flex flex-col font-torres"
@@ -164,7 +81,7 @@ const ScienceUTMHomepage = () => {
                   className="bg-white rounded-lg overflow-hidden hover:shadow-md transition"
                 >
                   <img
-                    src={getImageSrc(articulo.imagen_principal)}
+                    src={articulo.imagen_principal}
                     alt={articulo.titulo}
                     className="w-full h-[200px] object-cover"
                   />
@@ -183,7 +100,7 @@ const ScienceUTMHomepage = () => {
             <NavLink to={`/articulos/${filteredNews[0].id_articulo}`}>
               <div className="mb-8 transition bg-white rounded-lg overflow-hidden hover:cursor-pointer">
                 <img
-                  src={getImageSrc(filteredNews[0].imagen_principal)}
+                  src={filteredNews[0].imagen_principal}
                   alt={filteredNews[0].titulo}
                   className="w-full h-[500px] object-cover"
                 />

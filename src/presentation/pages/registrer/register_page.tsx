@@ -1,6 +1,6 @@
 import { NavLink} from "react-router-dom";
 import { motion } from "framer-motion";
-import {userRegisterSchema} from "../../zodValidartion/register_validation";
+import {userRegisterSchema} from "../../zodValidation/register_validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRegisterController } from "../../controllers/userRegisterController";

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { UserLoginForm } from "../../presentation/zodValidartion/login_validation";
+import { UserLoginForm } from "../../presentation/zodValidation/login_validation";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
