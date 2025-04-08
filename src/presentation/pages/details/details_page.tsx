@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import Footer from "../../components/footer";
 import Header from "../../components/header";
 import { useArticuloDetalleController } from "../../controllers/detailsPageController";
+import SpinnerLoader from "../../components/spinnerLoading";
 
 const ArticuloDetallePage = () => {
 
@@ -15,6 +16,9 @@ const ArticuloDetallePage = () => {
     handleComentarioSubmit,
     navigate,
   } = useArticuloDetalleController();
+
+  if (loading)
+    return <SpinnerLoader />;
 
   return (
     <motion.div

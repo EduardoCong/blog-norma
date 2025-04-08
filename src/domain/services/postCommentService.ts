@@ -1,22 +1,30 @@
 import axios from "axios";
-import { getToken } from "../../utils/auth";
+import { getToken, getUserEmail, getUserName } from "../../utils/auth";
 import { Comments } from "../models/comments";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
-export const postComment = async (id: number, content: string) => {
+export const postComment = async (
+  id: number,
+  contenido: string
+): Promise<Comments> => {
   const token = getToken();
-  const { data }: { data: Comments } = await axios.post(
+  await axios.post(
     `${API_URL}/api2/comentarios/${id}`,
     {
-      nombre_usuario: localStorage.getItem("nombre_usuario"),
-      email_usuario: localStorage.getItem("correo"),
-      content,
+      nombre_usuario: getUserName(),
+      email_usuario: getUserEmail(),
+      contenido,
     },
     {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    });
-    return data;
+    }
+  );
+  return {
+    nombre_usuario: getUserName(),
+    contenido,
+    fecha_comentario: new Date().toISOString(),
+  };
 };

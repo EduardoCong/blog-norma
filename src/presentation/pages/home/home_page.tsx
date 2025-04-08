@@ -3,10 +3,9 @@ import Header from "../../components/header";
 import Footer from "../../components/footer";
 import { useHomepageController } from "../../controllers/homePageController";
 import { NavLink } from "react-router-dom";
-
+import SpinnerLoader from "../../components/spinnerLoading";
 
 const ScienceUTMHomepage = () => {
-
   const {
     filteredNews,
     searchTerm,
@@ -15,9 +14,12 @@ const ScienceUTMHomepage = () => {
     toggleDropdown,
     dropdownKey,
     handleLogout,
-    setDropdownOpen
+    setDropdownOpen,
+    loading,
   } = useHomepageController();
-  
+
+  if (loading) return <SpinnerLoader />;
+
   return (
     <motion.div
       className="min-h-screen bg-white flex flex-col font-torres"

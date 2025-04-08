@@ -1,134 +1,36 @@
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faPlus, faUpload } from "@fortawesome/free-solid-svg-icons";
-import { useDropzone } from "react-dropzone";
-import { useNavigate } from "react-router-dom";
 import Footer from "../../components/footer";
 import Header from "../../components/header";
 import CrearArticuloModal from "../uploads/modal_upload";
-import { FaSpinner } from "react-icons/fa";
-import { User } from "../../../domain/models/user";
+import {usePerfilController} from "../../controllers/profileController"
+import SpinnerLoader from "../../components/spinnerLoading";
 
 const PerfilPage = () => {
-  const navigate = useNavigate();
-  const [perfil, setPerfil] = useState<User | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
-  const [newPassword, setNewPassword] = useState("");
-  const [editandoBio, setEditandoBio] = useState(false);
-  const [nuevaBio, setNuevaBio] = useState("");
-  const [mostrarModal, setMostrarModal] = useState(false);
+  const {
+    perfil,
+    loading,
+    showPassword,
+    setShowPassword,
+    newPassword,
+    setNewPassword,
+    editandoBio,
+    setEditandoBio,
+    nuevaBio,
+    setNuevaBio,
+    mostrarModal,
+    setMostrarModal,
+    handleGuardarPassword,
+    actualizarBiografia,
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    navigate
+  } = usePerfilController();
 
-  useEffect(() => {
-    const fetchPerfil = async () => {
-      const id = localStorage.getItem("id_autor");
-      const token = localStorage.getItem("token");
-
-      if (!id || !token) return;
-
-      try {
-        const { data } = await axios.get(
-          `http://localhost:4000/api2/usersAutor/${id}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        setPerfil(data.usuario);
-      } catch (error) {
-        console.error("Error al cargar perfil:", error);
-      }
-    };
-
-    fetchPerfil();
-  }, []);
-
-  const onDrop = (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      const base64 = reader.result?.toString();
-      if (base64) {
-        actualizarFotoPerfil(base64);
-      }
-    };
-
-    reader.readAsDataURL(file);
-  };
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: { "image/*": [] },
-  });
-
-  const actualizarFotoPerfil = async (base64: string) => {
-    const token = localStorage.getItem("token");
-    const id = localStorage.getItem("id_autor");
-
-    try {
-      const res = await axios.post(
-        `http://localhost:4000/uploads/users/${id}`,
-        { foto_perfil: base64 },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      const secureUrl = res.data.secure_url;
-      localStorage.setItem("foto_perfil", secureUrl);
-      setPerfil((prev) => (prev ? { ...prev, foto: secureUrl } : prev));
-      console.log("Imagen actualizada en DB");
-    } catch (error) {
-      console.error("Error al subir imagen:", error);
-    }
-  };
-
-  const handleGuardarPassword = async () => {
-    const id = localStorage.getItem("id_autor");
-    const token = localStorage.getItem("token");
-
-    try {
-      await axios.put(
-        `http://localhost:4000/api2/users/${id}`,
-        { contrasena: newPassword },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setShowPassword(false);
-      setNewPassword("");
-    } catch (error) {
-      console.error("Error al actualizar contraseña:", error);
-    }
-  };
-
-  const actualizarBiografia = async () => {
-    const token = localStorage.getItem("token");
-    const id = localStorage.getItem("id_autor");
-
-    try {
-      await axios.put(
-        `http://localhost:4000/api2/users/${id}`,
-        { biografia: nuevaBio },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setPerfil((prev) => (prev ? { ...prev, biografia: nuevaBio } : prev));
-      setEditandoBio(false);
-    } catch (error) {
-      console.error("Error actualizando biografía:", error);
-    }
-  };
-
-  if (!perfil)
-    return (
-      <div className="flex items-center justify-center gap-2 text-gray-500 mt-10">
-        <FaSpinner className="animate-spin text-xl" />
-        <span>Cargando perfil...</span>
-      </div>
-    );
+  if (loading || !perfil)
+    return <SpinnerLoader />;
 
   return (
     <motion.main
@@ -143,10 +45,10 @@ const PerfilPage = () => {
         <h2 className="text-2xl mb-6">Detalles personales</h2>
 
         <div className="flex justify-center items-center gap-6 mb-6">
-          {perfil.foto || localStorage.getItem("foto_perfil") ? (
+          {perfil.foto_perfil ? (
             <div {...getRootProps()}>
               <img
-                src={perfil.foto || localStorage.getItem("foto_perfil") || ""}
+                src={perfil.foto_perfil}
                 alt="Foto de perfil"
                 className="w-60 h-60 object-cover rounded-full shadow-lg border hover:cursor-pointer"
               />
@@ -198,6 +100,7 @@ const PerfilPage = () => {
                   type="password"
                   className="border p-2 rounded-lg text-sm w-full"
                   placeholder="Nueva contraseña"
+                  value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
                 <div className="flex gap-2">

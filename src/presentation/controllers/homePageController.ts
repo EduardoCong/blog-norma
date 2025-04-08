@@ -10,9 +10,11 @@ export const useHomepageController = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownKey, setDropdownKey] = useState(0);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const fetchArticulos = async () => {
+    setLoading(true);
     try {
       const articulos = await getAllArticles();
       const reversed = articulos.reverse();
@@ -20,6 +22,8 @@ export const useHomepageController = () => {
       setFilteredNews(reversed);
     } catch (error) {
       console.error("Error al cargar artículos:", error);
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -58,6 +62,7 @@ export const useHomepageController = () => {
     toggleDropdown,
     dropdownKey,
     handleLogout,
-    setDropdownOpen
+    setDropdownOpen,
+    loading
   };
 };

@@ -13,7 +13,6 @@ export const useRegisterController = () => {
             await toast.promise(RegisterService(data), {
                 loading: "Registrando...",
                 success: "¡Registro exitoso!",
-                error: "Error al registrar",
             }).then(() => {
                 navigate("/");
             });

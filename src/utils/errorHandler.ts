@@ -1,6 +1,10 @@
+import axios from "axios";
 import { ZodError } from "zod";
 
 export const getErrorMessage = (error: unknown): string => {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data?.error;
+  }
   if (error instanceof ZodError) {
     return "Error de validación: " + JSON.stringify(error.format());
   }
@@ -9,3 +13,5 @@ export const getErrorMessage = (error: unknown): string => {
   }
   return "Error desconocido";
 };
+
+

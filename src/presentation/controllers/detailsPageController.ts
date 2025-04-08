@@ -7,6 +7,7 @@ import { postComment } from "../../domain/services/postCommentService";
 import { Comments } from "../../domain/models/comments";
 import { getErrorMessage } from "../../utils/errorHandler";
 import { getToken, getUserEmail, getUserName } from "../../utils/auth";
+import toast from "react-hot-toast";
 
 export const useArticuloDetalleController = () => {
   const [article, setArticle] = useState<Article | null>(null);
@@ -23,7 +24,7 @@ export const useArticuloDetalleController = () => {
       return;
     }
 
-    const fetchData = async () => {
+    const getAllArticlesComments = async () => {
       if (!id) return;
       const idNumber = parseInt(id, 10);
       if (isNaN(idNumber)) return;
@@ -39,7 +40,7 @@ export const useArticuloDetalleController = () => {
         setLoading(false);
       }
     };
-    fetchData();
+    getAllArticlesComments();
   }, [id, navigate]);
 
   const handleComentarioSubmit = async () => {
@@ -57,9 +58,13 @@ export const useArticuloDetalleController = () => {
       return;
     }
 
+    setLoading(true);
     try {
-      setLoading(true);
-      await postComment(idNumber, newComment);
+      await toast.promise(postComment(idNumber, newComment), {
+        loading: "Enviando comentario...",
+        success: "Comentario enviado",
+        error: "No se pudo enviar el comentario",
+      });
 
       setComments((prev) => [
         ...prev,
@@ -72,7 +77,7 @@ export const useArticuloDetalleController = () => {
       setNewComment("");
     } catch (e) {
       getErrorMessage(e);
-    } finally{
+    } finally {
       setLoading(false);
     }
   };
