@@ -29,10 +29,10 @@ Este proyecto es la interfaz frontend del sistema de noticias científicas **Sci
 ## 📦 Instalación (Yo use bun)
 
 ```bash
-git clone https://github.com/tuusuario/scienceutm-frontend.git
-cd scienceutm-frontend
-npm install
-npm run dev
+git clone https://github.com/EduardoCong/blog-norma.git
+cd blog-norma
+bun install
+bun run dev
 
 
 
