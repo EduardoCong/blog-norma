@@ -63,6 +63,6 @@ export const useHomepageController = () => {
     dropdownKey,
     handleLogout,
     setDropdownOpen,
-    loading
+    loading,
   };
 };

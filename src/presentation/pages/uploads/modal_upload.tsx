@@ -1,97 +1,48 @@
-import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaCloudUploadAlt, FaPaperPlane } from "react-icons/fa";
-import Swal from "sweetalert2";
-import axios from "axios";
-
-interface FormularioArticulo {
-  titulo: string;
-  contenido: string;
-  id_categoria: string | number;
-  imagen_principal: string;
-}
-
-const categoriasDisponibles = [
-  { id: 1, nombre: "Ciencia" },
-  { id: 2, nombre: "Tecnología" },
-  { id: 3, nombre: "Medio Ambiente" },
-  { id: 4, nombre: "Astronomía" },
-  { id: 5, nombre: "Biología" },
-];
+import { FaCloudUploadAlt } from "react-icons/fa";
+import { usePostArticleController } from "../../controllers/modalController";
+import { categoriasDisponibles } from "../../../utils/categorys";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { FormPostArticle } from "../../../domain/models/articles";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { formSchema } from "../../zodValidation/postArticle_validation";
 
 const CrearArticuloModal = ({ onClose }: { onClose: () => void }) => {
-  const [formulario, setFormulario] = useState<FormularioArticulo>({
-    titulo: "",
-    contenido: "",
-    id_categoria: "",
-    imagen_principal: "",
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<FormPostArticle>({
+    resolver: zodResolver(formSchema),
+    mode: "onBlur",
+    defaultValues: {
+      titulo: "",
+      contenido: "",
+      id_categoria: 0,
+      imagen_principal: "",
+    },
   });
 
-  const [etiquetas, setEtiquetas] = useState<string[]>([]);
-  const [inputEtiqueta, setInputEtiqueta] = useState<string>("");
+  const imagen = watch("imagen_principal");
+
+  const {
+    onSubmit,
+    handleFileChange,
+    handleEtiquetaKeyDown,
+    labels,
+    inputLabel,
+    setInputLabel,
+  } = usePostArticleController();
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
-  
     return () => {
       document.body.style.overflow = "auto";
     };
   }, []);
-
-  const handleChange = (campo: keyof FormularioArticulo, valor: string | number) => {
-    setFormulario((prev) => ({ ...prev, [campo]: valor }));
-  };
-
-  const handleSubmit = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const fecha_publicacion = new Date().toLocaleDateString("sv-SE");
-
-      const datosArticulo = {
-        ...formulario,
-        fecha_publicacion,
-      };
-
-      const response = await axios.post(
-        "http://localhost:4000/uploads/crearArticulos",
-        datosArticulo,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      Swal.fire("¡Publicado!", response.data.message, "success").then(onClose);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      Swal.fire("Error", "Algo salió mal al publicar el artículo", "error");
-    }
-  };
-
-  const handleEtiquetaKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && inputEtiqueta.trim()) {
-      e.preventDefault();
-      setEtiquetas((prev) => [...prev, inputEtiqueta.trim()]);
-      setInputEtiqueta("");
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result?.toString();
-        if (base64) {
-          handleChange("imagen_principal", base64);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-  
 
   return (
     <AnimatePresence>
@@ -110,84 +61,117 @@ const CrearArticuloModal = ({ onClose }: { onClose: () => void }) => {
         >
           <h2 className="text-2xl text-gray-800 mb-6">Sube tu noticia</h2>
 
-          <div className="space-y-4">
+          <form
+            onSubmit={handleSubmit((data) => onSubmit(data, onClose))}
+            className="space-y-4"
+          >
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Titulo</label>
+              <label className="block text-sm text-gray-600 mb-1">Título</label>
               <input
                 type="text"
-                value={formulario.titulo}
-                onChange={(e) => handleChange("titulo", e.target.value)}
+                {...register("titulo")}
                 placeholder="Ingresa el título de tu artículo"
                 className="w-full border rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-400 outline-none"
               />
+              {errors.titulo && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.titulo.message}
+                </p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Categoria</label>
+              <label className="block text-sm text-gray-600 mb-1">
+                Categoría
+              </label>
               <select
-                value={formulario.id_categoria}
-                onChange={(e) => handleChange("id_categoria", e.target.value)}
-                className="w-full border rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-400 outline-none"
+                {...register("id_categoria", { valueAsNumber: true })}
+                className="w-full border rounded-lg px-3 py-1.5 text-gray-500 focus:ring-2 focus:ring-blue-400 outline-none font-jakarta"
               >
-                <option value="">Selecciona una categoria</option>
+                <option value="" className="font-jakarta">Selecciona una categoría</option>
                 {categoriasDisponibles.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+                  <option key={cat.id} value={cat.id} className="font-jakarta">
+                    {cat.nombre}
+                  </option>
                 ))}
               </select>
+              {errors.id_categoria && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.id_categoria.message}
+                </p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Contenido</label>
+              <label className="block text-sm text-gray-600 mb-1">
+                Contenido
+              </label>
               <textarea
-                value={formulario.contenido}
-                onChange={(e) => handleChange("contenido", e.target.value)}
+                {...register("contenido")}
                 rows={5}
                 placeholder="Escribe tu noticia..."
                 className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
               />
+              {errors.contenido && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.contenido.message}
+                </p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Imagen destacada</label>
+              <label className="block text-sm text-gray-600 mb-1">
+                Imagen destacada
+              </label>
               <div className="w-full border-2 border-dashed rounded-lg p-6 text-center text-gray-500 flex flex-col items-center justify-center hover:border-blue-400 transition cursor-pointer">
                 <FaCloudUploadAlt className="text-3xl mb-2" />
-                <p className="mb-2">Arrasta y suelta tu imagen o</p>
+                <p className="mb-2">Arrastra y suelta tu imagen o</p>
                 <input
                   type="file"
                   accept="image/*"
                   className="hidden"
                   id="fileInput"
-                  onChange={handleFileChange}
+                  onChange={(e) => handleFileChange(e, setValue)}
                 />
-                <label
-                  htmlFor="fileInput"
-                  className="inline-block bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-1 rounded cursor-pointer text-sm"
-                >
-                  Sube una imagen
+                <label htmlFor="fileInput" className="cursor-pointer group">
+                  {imagen ? (
+                    <img
+                      src={imagen}
+                      alt="Preview"
+                      className="w-40 h-40 object-cover rounded-lg border shadow group-hover:brightness-75 transition"
+                    />
+                  ) : (
+                    <div className="w-40 h-40 bg-gray-100 flex items-center justify-center rounded-lg border border-dashed cursor-pointer hover:bg-gray-200 transition">
+                      <FaCloudUploadAlt className="text-3xl text-gray-500" />
+                    </div>
+                  )}
                 </label>
-                {formulario.imagen_principal && (
-                  <img
-                    src={formulario.imagen_principal}
-                    alt="Preview"
-                    className="mt-4 rounded-lg max-h-40 object-cover"
-                  />
-                )}
               </div>
+              {errors.imagen_principal && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.imagen_principal.message}
+                </p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Etiquetas</label>
+              <label className="block text-sm text-gray-600 mb-1">
+                Etiquetas
+              </label>
               <input
                 type="text"
-                value={inputEtiqueta}
-                onChange={(e) => setInputEtiqueta(e.target.value)}
+                value={inputLabel}
+                onChange={(e) => setInputLabel(e.target.value)}
                 onKeyDown={handleEtiquetaKeyDown}
                 placeholder="Ingresa etiquetas"
                 className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
               />
               <div className="flex flex-wrap gap-2 mt-2">
-                {etiquetas.map((tag, i) => (
-                  <span key={i} className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+                {labels.map((tag, i) => (
+                  <span
+                    key={i}
+                    className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full"
+                  >
                     #{tag}
                   </span>
                 ))}
@@ -196,19 +180,20 @@ const CrearArticuloModal = ({ onClose }: { onClose: () => void }) => {
 
             <div className="flex justify-end gap-3 pt-4">
               <button
+                type="button"
                 onClick={onClose}
                 className="px-4 py-2 rounded-md border text-gray-700 hover:bg-[#B70808FF] hover:text-white transition hover:cursor-pointer"
               >
                 Cancelar
               </button>
-              <button   
-                onClick={handleSubmit}
+              <button
+                type="submit"
                 className="px-4 py-2 rounded-md border text-gray-700 flex items-center gap-2 hover:bg-[#17AD21FF] hover:text-white transition hover:cursor-pointer"
               >
-                <FaPaperPlane /> Subir noticia
+                Subir noticia
               </button>
             </div>
-          </div>
+          </form>
         </motion.div>
       </motion.div>
     </AnimatePresence>
